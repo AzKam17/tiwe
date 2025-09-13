@@ -25,6 +25,7 @@ class UserFixtures extends Fixture
 
 
         $user->setUsername('admin');
+        $user->setEmail('azizkamadou@gmail.com');
         $user->setPassword($password);
 
         $manager->persist($user);
