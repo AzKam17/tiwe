@@ -13,6 +13,9 @@
         {% endblock %}
     </head>
     <body>
+        {% include '_partials/_navbar.html.twig' %}
+        <div class="container mt-4">
         {% block body %}{% endblock %}
+        </div>
     </body>
 </html>
