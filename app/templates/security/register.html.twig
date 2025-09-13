@@ -1,6 +1,6 @@
 {% extends 'base_auth.html.twig' %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Inscription{% endblock %}
 
 {% block body %}
     <div class="container-fluid vh-100">
@@ -13,7 +13,7 @@
                         <i class="bi bi-people-fill"></i> Bienvenue !
                     </h1>
                     <p class="lead text-muted">
-                        Créez votre compte pour accéder à nos services exclusifs.
+                        Entrez votre adresse e-mail pour commencer votre inscription.
                         Simple, rapide et sécurisé.
                     </p>
                     <img src="https://via.placeholder.com/600x300" alt="Illustration" class="img-fluid mt-4 rounded shadow-sm">
@@ -22,26 +22,31 @@
 
             <!-- Right side (1/4 width) -->
             <div class="col-md-3 d-flex align-items-center bg-white border-start">
-                <form method="post" class="w-100 p-4 d-flex flex-column gap-3">
+                <div class="w-100 p-4">
                     <h2 class="h4 text-center mb-3">
-                        <i class="bi bi-person-plus-fill"></i> Inscription
+                        <i class="bi bi-envelope-check-fill"></i> Inscription
                     </h2>
 
+                    <div id="flash-container">
+                        {% include '_partials/_flashes.html.twig' %}
+                    </div>
+
+                    {{ form_start(form, { attr: { class: 'd-flex flex-column gap-3' } }) }}
                     <div class="form-floating">
-                        <input type="email" name="email" id="email" class="form-control" placeholder="nom@exemple.com" required>
-                        <label for="email">
-                            <i class="bi bi-envelope-fill"></i> Adresse e-mail
-                        </label>
+                        {{ form_widget(form.email, { attr: { class: 'form-control', placeholder: 'nom@exemple.com' } }) }}
+                        {{ form_label(form.email) }}
+                        {{ form_errors(form.email) }}
                     </div>
 
                     <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2" type="submit">
-                        <i class="bi bi-check-circle-fill"></i> S’inscrire
+                        Continuer <i class="bi bi-arrow-right-circle-fill"></i>
                     </button>
+                    {{ form_end(form) }}
 
                     <p class="text-center small mt-3">
                         Déjà un compte ? <a href="{{ path('app_security_login') }}">Se connecter</a>
                     </p>
-                </form>
+                </div>
             </div>
         </div>
     </div>

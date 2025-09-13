@@ -2,10 +2,14 @@
 
 namespace App\Controller;
 
+use App\Form\CheckEmailFormType;
+use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\UX\Turbo\TurboBundle;
 
 class SecurityController extends AbstractController
 {
@@ -25,9 +29,32 @@ class SecurityController extends AbstractController
     }
 
     #[Route(path: '/register', name: 'app_security_register')]
-    public function register(AuthenticationUtils $authenticationUtils): Response
+    public function register(Request $request, UserRepository $userRepository): Response
     {
+        $form = $this->createForm(CheckEmailFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $email = $form->get('email')->getData();
+
+            $existingUser = $userRepository->findOneBy(['email' => $email]);
+
+            if ($existingUser) {
+                $this->addFlash('danger', "L'adresse e-mail est déjà utilisée.");
+
+                if (TurboBundle::STREAM_FORMAT === $request->getPreferredFormat()) {
+                    $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
+                    return $this->render('_partials/_flashes.stream.html.twig');
+                }
+            } else {
+                return $this->redirectToRoute('app_register_form', [
+                    'email' => $email,
+                ]);
+            }
+        }
+
         return $this->render('security/register.html.twig', [
+            'form' => $form->createView(),
         ]);
     }
 
