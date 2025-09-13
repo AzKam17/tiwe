@@ -1,55 +1,75 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_auth.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}Log in{% endblock %}
 
 {% block body %}
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <form method="post" class="p-4 border rounded shadow-sm bg-light d-flex flex-column gap-3">
-                {% if error %}
-                    <div class="alert alert-danger d-flex align-items-center gap-2">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                        <span>{{ error.messageKey|trans(error.messageData, 'security') }}</span>
-                    </div>
-                {% endif %}
+    <div class="container-fluid vh-100">
+        <div class="row h-100">
 
-                {% if app.user %}
-                    <div class="alert alert-info d-flex justify-content-between align-items-center">
-                    <span>
-                        <i class="bi bi-person-circle"></i>
-                        You are logged in as <strong>{{ app.user.userIdentifier }}</strong>
-                    </span>
-                        <a href="{{ path('app_logout') }}" class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-box-arrow-right"></i> Logout
-                        </a>
-                    </div>
-                {% endif %}
-
-                <h1 class="h4 text-center text-primary">
-                    <i class="bi bi-shield-lock-fill"></i> Se connecter
-                </h1>
-
-                <div class="form-floating">
-                    <input type="text" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="username" required autofocus>
-                    <label for="username">
-                        <i class="bi bi-person-fill"></i> Nom d'utilisateur
-                    </label>
+            <!-- Left side (3/4 width) -->
+            <div class="col-md-9 d-flex flex-column justify-content-center align-items-center bg-light">
+                <div class="text-center px-5">
+                    <h1 class="display-4 text-primary mb-4">
+                        <i class="bi bi-box-arrow-in-right"></i> Bienvenue !
+                    </h1>
+                    <p class="lead text-muted">
+                        Connectez-vous pour continuer et profiter de toutes les fonctionnalités.
+                    </p>
+                    <img src="https://via.placeholder.com/600x300" alt="Illustration" class="img-fluid mt-4 rounded shadow-sm">
                 </div>
+            </div>
 
-                <div class="form-floating">
-                    <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
-                    <label for="password">
-                        <i class="bi bi-key-fill"></i> Mot de passe
-                    </label>
-                </div>
+            <!-- Right side (1/4 width) -->
+            <div class="col-md-3 d-flex align-items-center bg-white border-start">
+                <form method="post" class="w-100 p-4 d-flex flex-column gap-3">
+                    {% if error %}
+                        <div class="alert alert-danger d-flex align-items-center gap-2">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span>{{ error.messageKey|trans(error.messageData, 'security') }}</span>
+                        </div>
+                    {% endif %}
 
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                    {% if app.user %}
+                        <div class="alert alert-info d-flex justify-content-between align-items-center">
+                        <span>
+                            <i class="bi bi-person-circle"></i>
+                            Vous êtes connecté en tant que <strong>{{ app.user.userIdentifier }}</strong>
+                        </span>
+                            <a href="{{ path('app_logout') }}" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </a>
+                        </div>
+                    {% endif %}
 
-                <button class="btn btn-lg btn-primary w-100 d-flex align-items-center justify-content-center gap-2" type="submit">
-                    Connexion
-                    <i class="bi bi-box-arrow-in-right"></i>
-                </button>
-            </form>
+                    <h2 class="h4 text-center text-primary">
+                        <i class="bi bi-shield-lock-fill"></i> Connexion
+                    </h2>
+
+                    <div class="form-floating">
+                        <input type="text" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="username" required autofocus>
+                        <label for="username">
+                            <i class="bi bi-person-fill"></i> Nom d'utilisateur
+                        </label>
+                    </div>
+
+                    <div class="form-floating">
+                        <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
+                        <label for="password">
+                            <i class="bi bi-key-fill"></i> Mot de passe
+                        </label>
+                    </div>
+
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                    <button class="btn btn-lg btn-primary w-100 d-flex align-items-center justify-content-center gap-2" type="submit">
+                        <i class="bi bi-box-arrow-in-right"></i> Connexion
+                    </button>
+
+                    <p class="text-center small mt-3">
+                        Pas encore de compte ? <a href="{{ path('app_security_register') }}">S’inscrire</a>
+                    </p>
+                </form>
+            </div>
         </div>
     </div>
 {% endblock %}

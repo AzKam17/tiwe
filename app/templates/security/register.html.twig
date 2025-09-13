@@ -1,0 +1,48 @@
+{% extends 'base_auth.html.twig' %}
+
+{% block title %}Register{% endblock %}
+
+{% block body %}
+    <div class="container-fluid vh-100">
+        <div class="row h-100">
+
+            <!-- Left side (3/4 width) -->
+            <div class="col-md-9 d-flex flex-column justify-content-center align-items-center bg-light">
+                <div class="text-center px-5">
+                    <h1 class="display-4 text-primary mb-4">
+                        <i class="bi bi-people-fill"></i> Bienvenue !
+                    </h1>
+                    <p class="lead text-muted">
+                        Créez votre compte pour accéder à nos services exclusifs.
+                        Simple, rapide et sécurisé.
+                    </p>
+                    <img src="https://via.placeholder.com/600x300" alt="Illustration" class="img-fluid mt-4 rounded shadow-sm">
+                </div>
+            </div>
+
+            <!-- Right side (1/4 width) -->
+            <div class="col-md-3 d-flex align-items-center bg-white border-start">
+                <form method="post" class="w-100 p-4 d-flex flex-column gap-3">
+                    <h2 class="h4 text-center mb-3">
+                        <i class="bi bi-person-plus-fill"></i> Inscription
+                    </h2>
+
+                    <div class="form-floating">
+                        <input type="email" name="email" id="email" class="form-control" placeholder="nom@exemple.com" required>
+                        <label for="email">
+                            <i class="bi bi-envelope-fill"></i> Adresse e-mail
+                        </label>
+                    </div>
+
+                    <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2" type="submit">
+                        <i class="bi bi-check-circle-fill"></i> S’inscrire
+                    </button>
+
+                    <p class="text-center small mt-3">
+                        Déjà un compte ? <a href="{{ path('app_security_login') }}">Se connecter</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
