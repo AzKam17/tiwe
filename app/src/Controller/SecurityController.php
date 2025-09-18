@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Form\CheckEmailFormType;
+use App\Form\UserNameFormType;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,6 +55,24 @@ class SecurityController extends AbstractController
         }
 
         return $this->render('security/register.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/register/name', name: 'app_register_name')]
+    public function registerName(Request $request, UserRepository $userRepository): Response
+    {
+        $form = $this->createForm(UserNameFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            // Save first name & last name, e.g., in session or user entity
+
+            return $this->redirectToRoute('app_register_password'); // Next step
+        }
+
+        return $this->render('security/register_name.html.twig', [
             'form' => $form->createView(),
         ]);
     }
