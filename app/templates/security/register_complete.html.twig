@@ -1,0 +1,81 @@
+{% extends 'base_auth_full.html.twig' %}
+
+{% block title %}Complétez votre profil{% endblock %}
+
+{% block body %}
+    <h4 class="text-center mb-4">
+        <i class="bi bi-person-fill"></i> Bienvenue !
+    </h4>
+
+    <p class="text-muted text-center mb-4">
+        Nous sommes ravis de vous accueillir 🎉
+        Merci de renseigner vos informations personnelles pour finaliser votre inscription.
+    </p>
+
+    {# Flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} mb-3">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {{ form_start(form, { attr: { class: 'd-flex flex-column gap-3', 'data-turbo': 'false' } }) }}
+
+    {# First Name #}
+    <div class="form-floating">
+        {{ form_widget(form.firstName, { attr: { class: 'form-control', placeholder: 'Prénom' } }) }}
+        <label for="{{ form.firstName.vars.id }}">
+            <i class="bi bi-person"></i> Prénom
+        </label>
+        <small class="form-text text-muted">
+            Entrez votre prénom.
+        </small>
+        {{ form_errors(form.firstName) }}
+    </div>
+
+    {# Last Name #}
+    <div class="form-floating">
+        {{ form_widget(form.lastName, { attr: { class: 'form-control', placeholder: 'Nom' } }) }}
+        <label for="{{ form.lastName.vars.id }}">
+            <i class="bi bi-person"></i> Nom
+        </label>
+        <small class="form-text text-muted">
+            Entrez votre nom de famille.
+        </small>
+        {{ form_errors(form.lastName) }}
+    </div>
+
+    {# Role dropdown #}
+    <div class="mb-2">
+        <p class="text-muted">
+            Choisis ce qui décrit le mieux ton activité sur la plateforme.
+            Voici à quoi correspondent les options :
+        </p>
+        <ul class="text-muted small mb-1">
+            <li><strong>Planteur :</strong> Toi qui plantes et prends soin des cultures.</li>
+            <li><strong>Coopérative :</strong> Groupe de planteurs qui vend ensemble.</li>
+            <li><strong>Fournisseur :</strong> Fournit du matériel ou des intrants aux planteurs.</li>
+            <li><strong>Revendeur :</strong> Revend les produits sur le marché.</li>
+            <li><strong>Transformateur :</strong> Transforme les produits bruts en produits finis.</li>
+            <li><strong>Acheteur :</strong> Achète des produits pour consommation ou revente.</li>
+        </ul>
+    </div>
+
+    <div class="form-floating">
+
+        {{ form_widget(form.attachedRoles, { attr: { class: 'form-select' } }) }}
+        <label for="{{ form.attachedRoles.vars.id }}">
+            <i class="bi bi-shield-lock"></i> Rôle
+        </label>
+
+    </div>
+
+
+    <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2" type="submit">
+        S’inscrire <i class="bi bi-arrow-right-circle"></i>
+    </button>
+
+    {{ form_end(form) }}
+{% endblock %}

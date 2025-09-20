@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Form\CheckEmailFormType;
 use App\Form\UserNameFormType;
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,8 +24,6 @@ class SecurityController extends AbstractController
 
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
-
-        dump("Hello", $error);
 
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
@@ -50,9 +50,9 @@ class SecurityController extends AbstractController
                     return $this->render('_partials/_flashes.stream.html.twig');
                 }
             } else {
-                return $this->redirectToRoute('app_register_name', [
-                    'email' => $email,
-                ]);
+                $request->getSession()->set('registration_email', $email);
+
+                return $this->redirectToRoute('app_register_name');
             }
         }
 
@@ -61,22 +61,43 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    #[Route('/register/name', name: 'app_register_name')]
-    public function registerName(Request $request, UserRepository $userRepository): Response
+    #[Route('/register/complete', name: 'app_register_name')]
+    public function registerName(Request $request, UserRepository $userRepository, EntityManagerInterface $em): Response
     {
-        $form = $this->createForm(UserNameFormType::class);
+        $email = $request->getSession()->get('registration_email');
+        if (!$email) {
+            $this->addFlash('danger', 'Adresse e-mail requise.');
+            return $this->redirectToRoute('app_security_register');
+        }
+
+        $user = (new User())->setEmail($email);
+        $form = $this->createForm(UserNameFormType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-            // Save first name & last name, e.g., in session or user entity
+            $user = $form->getData();
+            $role = $form->get('attachedRoles')->getData();
 
-            return $this->redirectToRoute('app_register_password'); // Next step
+            $user->setUsername($email);
+            $user->setEmail($email);
+            $user->addattachedRole($role);
+
+            $request->getSession()->remove('registration_email');
+            $request->getSession()->set('user', $user);
+
+            return $this->redirectToRoute('app_home');
         }
 
-        return $this->render('security/register_name.html.twig', [
+        return $this->render('security/register_complete.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    public function registerPassword(): Response
+    {
+        // This method is intentionally left blank.
+        // Password setting logic would go here.
+        return $this->render('security/register_password.html.twig');
     }
 
     #[Route(path: '/logout', name: 'app_logout')]
