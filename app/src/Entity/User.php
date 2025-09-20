@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Bridge\Doctrine\Types\UuidType;
@@ -47,6 +49,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $phoneNumber = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $firstName = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $lastName = null;
+
+    /**
+     * @var Collection<int, Role>
+     */
+    #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
+    private Collection $attachedRoles;
+
+    public function __construct()
+    {
+        $this->attachedRoles = new ArrayCollection();
+    }
+
     public function getId(): ?Uuid
     {
         return $this->id;
@@ -79,7 +98,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getRoles(): array
     {
-        $roles = $this->roles;
+        $roles = [$this->roles, array_map(
+            fn (Role $role) => $role->getValue(),
+            $this->attachedRoles->toArray()
+        )];
         // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
@@ -148,6 +170,54 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPhoneNumber(?string $phoneNumber): static
     {
         $this->phoneNumber = $phoneNumber;
+
+        return $this;
+    }
+
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(string $firstName): static
+    {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(string $lastName): static
+    {
+        $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Role>
+     */
+    public function getAttachedRoles(): Collection
+    {
+        return $this->attachedRoles;
+    }
+
+    public function addAttachedRole(Role $attachedRole): static
+    {
+        if (!$this->attachedRoles->contains($attachedRole)) {
+            $this->attachedRoles->add($attachedRole);
+        }
+
+        return $this;
+    }
+
+    public function removeAttachedRole(Role $attachedRole): static
+    {
+        $this->attachedRoles->removeElement($attachedRole);
 
         return $this;
     }

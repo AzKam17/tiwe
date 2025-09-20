@@ -4,8 +4,13 @@
 
 {% block body %}
     <h4 class="text-center mb-4">
-        <i class="bi bi-person-fill"></i> Informations personnelles
+        <i class="bi bi-person-fill"></i> Bienvenue !
     </h4>
+
+    <p class="text-muted text-center mb-4">
+        Nous sommes ravis de vous accueillir 🎉
+        Merci de renseigner vos informations personnelles pour finaliser votre inscription.
+    </p>
 
     {# Flash messages (if any) #}
     {% for label, messages in app.flashes %}
@@ -20,18 +25,22 @@
 
     <div class="form-floating">
         {{ form_widget(form.firstName, { attr: { class: 'form-control', placeholder: 'Prénom' } }) }}
-        {{ form_label(form.firstName) }}
+        <label for="{{ form.firstName.vars.id }}">
+            <i class="bi bi-person"></i> Prénom
+        </label>
         {{ form_errors(form.firstName) }}
     </div>
 
     <div class="form-floating">
         {{ form_widget(form.lastName, { attr: { class: 'form-control', placeholder: 'Nom' } }) }}
-        {{ form_label(form.lastName) }}
+        <label for="{{ form.lastName.vars.id }}">
+            <i class="bi bi-person"></i> Nom
+        </label>
         {{ form_errors(form.lastName) }}
     </div>
 
     <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2" type="submit">
-        Continuer <i class="bi bi-arrow-right-circle-fill"></i>
+        S’inscrire <i class="bi bi-arrow-right-circle"></i>
     </button>
 
     {{ form_end(form) }}

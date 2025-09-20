@@ -48,7 +48,7 @@ class SecurityController extends AbstractController
                     return $this->render('_partials/_flashes.stream.html.twig');
                 }
             } else {
-                return $this->redirectToRoute('app_register_form', [
+                return $this->redirectToRoute('app_register_name', [
                     'email' => $email,
                 ]);
             }
