@@ -98,10 +98,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getRoles(): array
     {
-        $roles = [$this->roles, array_map(
-            fn (Role $role) => $role->getValue(),
+        $roles = array_merge($this->roles, array_map(
+            fn(Role $role) => $role->getValue(),
             $this->attachedRoles->toArray()
-        )];
+        ));
         // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 

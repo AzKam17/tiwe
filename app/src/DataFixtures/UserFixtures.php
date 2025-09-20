@@ -26,11 +26,10 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
             'admin'
         );
 
-
         $user->setUsername('admin');
         $user->setFirstName('Aziz');
         $user->setLastName('KAMAGATE');
-        $user->setEmail('azizkamadou@gmail.com');
+        $user->setEmail('aziz@aziz.com');
         $user->setPassword($password);
         $user->addAttachedRole($roleAdmin);
 

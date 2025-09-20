@@ -21,7 +21,7 @@
 
             <!-- Right side (1/4 width) -->
             <div class="col-md-3 d-flex align-items-center bg-white border-start">
-                <form method="post" class="w-100 p-4 d-flex flex-column gap-3">
+                <form method="post" action="{{ path('app_security_login') }}" class="w-100 p-4 d-flex flex-column gap-3">
                     {% if error %}
                         <div class="alert alert-danger d-flex align-items-center gap-2">
                             <i class="bi bi-exclamation-triangle-fill"></i>
@@ -59,7 +59,7 @@
                         </label>
                     </div>
 
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+{#                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">#}
 
                     <button class="btn btn-lg btn-primary w-100 d-flex align-items-center justify-content-center gap-2" type="submit">
                         <i class="bi bi-box-arrow-in-right"></i> Connexion
