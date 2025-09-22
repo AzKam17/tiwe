@@ -16,4 +16,10 @@ final class DashboardController extends AbstractController
     {
         return $this->render('dashboard/home.html.twig');
     }
+
+    #[Route('/dashboard/products', name: 'app_dashboard_products')]
+    public function products(): Response
+    {
+        return $this->render('dashboard/products.html.twig');
+    }
 }

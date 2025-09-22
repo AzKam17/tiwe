@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="turbo-refresh-method" content="morph">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Dashboard{% endblock %}</title>
     {% block stylesheets %}
@@ -20,12 +21,16 @@
 
         {# Left Sidebar Partial #}
         <div class="col-2 bg-light vh-100">
-            {% include '_partials/_sidebar.html.twig' %}
+            <turbo-frame id="sidebar-frame">
+                {% include '_partials/_sidebar.html.twig' %}
+            </turbo-frame>
         </div>
 
         {# Main Content Area #}
         <div class="col-10 p-4">
+            <turbo-frame id="main-content-frame">
             {% block body %}{% endblock %}
+            </turbo-frame>
         </div>
     </div>
 </div>
