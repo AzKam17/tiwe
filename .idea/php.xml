@@ -143,6 +143,7 @@
       <path value="$PROJECT_DIR$/app/vendor/doctrine/doctrine-bundle" />
       <path value="$PROJECT_DIR$/app/vendor/staabm/side-effects-detector" />
       <path value="$PROJECT_DIR$/app/vendor/symfony/ux-turbo" />
+      <path value="$PROJECT_DIR$/app/vendor/twig/string-extra" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.2">

@@ -1,0 +1,9 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mes Produits{% endblock %}
+
+{% block body %}
+    <h1>Nouveau produit</h1>
+
+    {{ include('dashboard/products/_form.html.twig', {'button_label': 'Créer'}) }}
+{% endblock %}
