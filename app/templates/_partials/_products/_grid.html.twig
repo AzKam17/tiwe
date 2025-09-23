@@ -1,0 +1,28 @@
+{# templates/products/_grid.html.twig #}
+
+<div class="row">
+    {% for product in products %}
+        <div class="col-md-3 mb-4">
+            <div class="h-200 text-start">
+                <img src="https://picsum.photos/300/300?random={{ product.id }}"
+                     class="img-fluid mb-2 rounded-3"
+                     alt="{{ product.title }}">
+
+                <h5 class="mb-1">{{ product.title }}</h5>
+                <p class="text-muted small mb-1">
+                    {{ product.category ? product.category.title : 'Sans catégorie' }}
+                </p>
+                <p class="fw-bold text-primary mb-2">
+                    {{ product.price is defined ? product.price ~ ' €' : 'Prix à venir' }}
+                </p>
+                <p class="small text-muted">
+                    {{ product.description|u.truncate(60, '…') }}
+                </p>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-12 text-center">
+            <p>Aucun produit trouvé.</p>
+        </div>
+    {% endfor %}
+</div>
