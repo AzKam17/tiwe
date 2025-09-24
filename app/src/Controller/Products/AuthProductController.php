@@ -39,6 +39,7 @@ class AuthProductController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            dump("dada");
             $product = $form->getData();
             $em->persist($product);
             $em->flush();

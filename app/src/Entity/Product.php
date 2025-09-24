@@ -30,6 +30,9 @@ class Product
     #[ORM\Column]
     private ?int $stock = null;
 
+    #[ORM\Column]
+    private ?float $price = 0;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -91,6 +94,18 @@ class Product
     public function setStock(int $stock): static
     {
         $this->stock = $stock;
+
+        return $this;
+    }
+
+    public function getPrice(): ?float
+    {
+        return $this->price;
+    }
+
+    public function setPrice(float $price): static
+    {
+        $this->price = $price;
 
         return $this;
     }

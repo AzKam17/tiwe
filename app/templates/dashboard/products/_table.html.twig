@@ -9,6 +9,7 @@
         <th>Créé par</th>
         <th>Description</th>
         <th>Stock</th>
+        <th>Prix</th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -21,6 +22,7 @@
             <td>{{ product.createdBy ? product.createdBy.email : '—' }}</td>
             <td>{{ product.description|u.truncate(50, '…') }}</td>
             <td>{{ product.stock }}</td>
+            <td>{{ product.price|number_format(2, ',', ' ') }} FCFA</td>
             <td>
                 <a href="#" class="btn btn-sm btn-info">Voir</a>
                 <a href="#" class="btn btn-sm btn-warning">Éditer</a>
@@ -29,7 +31,7 @@
         </tr>
     {% else %}
         <tr>
-            <td colspan="7" class="text-center">Aucun produit trouvé</td>
+            <td colspan="8" class="text-center">Aucun produit trouvé</td>
         </tr>
     {% endfor %}
     </tbody>

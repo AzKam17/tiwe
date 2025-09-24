@@ -1,0 +1,36 @@
+{# templates/products/show.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ product.title }}{% endblock %}
+
+{% block body %}
+    <div class="row g-4">
+        <div class="col-md-6">
+            <img src="https://picsum.photos/800/800?random={{ product.id }}"
+                 class="img-fluid rounded-3"
+                 alt="{{ product.title }}">
+        </div>
+
+        <div class="col-md-6">
+            <h1 class="mb-3">{{ product.title }}</h1>
+
+            <p class="text-muted mb-2">
+                Catégorie: {{ product.category ? product.category.title : 'Sans catégorie' }}
+            </p>
+
+            <p class="fw-bold text-primary fs-4 mb-3">
+                {{ product.price is defined ? product.price ~ ' €' : 'Prix à venir' }}
+            </p>
+
+            <p class="mb-4">
+                {{ product.description|default('Pas de description disponible.') }}
+            </p>
+
+            <a href="{{ path('app_cart_add', {id: product.id}) }}" class="btn btn-primary btn-lg" target="_top">
+                <i class="bi bi-cart-plus"></i> Ajouter au panier
+            </a>
+        </div>
+    </div>
+
+    {{ include('_partials/_cart_modal.html.twig') }}
+{% endblock %}
