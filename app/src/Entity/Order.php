@@ -9,6 +9,7 @@ use Carbon\CarbonImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Random\RandomException;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
@@ -51,6 +52,9 @@ class Order
 
     #[ORM\Column(type: 'string', enumType: OrderStatus::class)]
     private OrderStatus $status = OrderStatus::PENDING;
+
+    #[ORM\Column(length: 6, unique: true)]
+    private ?string $slug = null;
 
     public function __construct()
     {
@@ -174,5 +178,35 @@ class Order
     {
         $this->status = $status;
         return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    /**
+     * @throws RandomException
+     */
+    #[ORM\PrePersist]
+    public function generateSlug(): void
+    {
+        if ($this->slug === null) {
+            $this->slug = $this->generateRandomSlug(6);
+        }
+    }
+
+    /**
+     * Generate a random string with lowercase letters and numbers
+     * @throws RandomException
+     */
+    private function generateRandomSlug(int $length = 6): string
+    {
+        $characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        $slug = '';
+        for ($i = 0; $i < $length; $i++) {
+            $slug .= $characters[random_int(0, strlen($characters) - 1)];
+        }
+        return $slug;
     }
 }

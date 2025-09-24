@@ -7,19 +7,23 @@
             <th>Frais</th>
             <th>Total</th>
             <th>Date</th>
-            <th>Actions</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
         {% for order in orders %}
             <tr>
-                <td>{{ order.id|slice(0, 15) }}…</td>
+                <td>
+                    <strong>
+                        {{ '#' ~ order.slug }}
+                    </strong>
+                </td>
                 <td>{{ order.amount|number_format(2, ',', ' ') }} €</td>
                 <td>{{ order.fees|number_format(2, ',', ' ') }} €</td>
                 <td><strong>{{ order.totalAmount|number_format(2, ',', ' ') }} €</strong></td>
                 <td>{{ order.createdAt|date('d/m/Y H:i') }}</td>
                 <td>
-                    <a href="#" class="btn btn-sm btn-outline-primary align-items-center gap-1">
+                    <a href="" class="btn btn-sm btn-outline-primary align-items-center gap-1">
                         <i class="bi bi-eye"></i> Voir
                     </a>
                 </td>
