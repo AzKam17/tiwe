@@ -4,5 +4,5 @@
 
 {% block body %}
     <h1>Nouveau produit</h1>
-    {{ include('dashboard/products/_form.html.twig', {'button_label': 'Créer', 'turbo': false}) }}
+    {{ include('dashboard/products/_form.html.twig', {'button_label': 'Créer', 'turbo': false, 'action': path('app_auth_products_new')}) }}
 {% endblock %}

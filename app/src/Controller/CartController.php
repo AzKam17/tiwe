@@ -66,6 +66,8 @@ final class CartController extends AbstractController
         $entityManager->persist($order);
         $entityManager->flush();
 
+        $cartService->clearCart();
+
         return $this->render('cart/index.html.twig');
     }
 

@@ -17,8 +17,9 @@ class NewProductType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('title', TextType::class, ['label' => 'Titre'])            ->add('stock')
+            ->add('title', TextType::class, ['label' => 'Titre'])
             ->add('stock', NumberType::class, ['label' => 'Stock'])
+            ->add('price', NumberType::class, ['label' => 'Prix'])
             ->add('description', TextType::class, ['label' => 'Description'])
             ->add('category', EntityType::class, [
                 'label' => 'Categorie',

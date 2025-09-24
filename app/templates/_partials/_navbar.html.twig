@@ -27,7 +27,7 @@
                 {% set cartCount = cart|length %}
 
                 <li class="nav-item">
-                    <a href="#" class="nav-link position-relative" data-bs-toggle="modal" data-bs-target="#cartModal">
+                    <a href="{{ path('app_cart_index') }}" class="nav-link position-relative">
                         <i class="bi bi-cart-fill fs-5"></i>
                         {% if cartCount > 0 %}
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
