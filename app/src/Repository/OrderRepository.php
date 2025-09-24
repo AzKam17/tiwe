@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Order;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,6 +15,24 @@ class OrderRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Order::class);
+    }
+
+    /**
+     * Get the purchases made by a specific user.
+     *
+     * @param User $user The user whose purchases are to be retrieved.
+     * @param int $limit The maximum number of purchases to retrieve. Default is 10.
+     * @return Order[] An array of Order objects representing the user's purchases.
+     */
+    public function getMyPurchases($user, $limit = 10): array
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.buyer = :user')
+            ->setParameter('user', $user)
+            ->orderBy('o.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
     }
 
     //    /**

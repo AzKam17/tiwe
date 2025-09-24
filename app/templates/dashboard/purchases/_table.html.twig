@@ -1,0 +1,45 @@
+{% if orders|length > 0 %}
+    <table class="table rounded shadow-sm table-outer-border">
+        <thead class="bg-light">
+        <tr>
+            <th>ID</th>
+            <th>Montant</th>
+            <th>Frais</th>
+            <th>Total</th>
+            <th>Date</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+            <tr>
+                <td>{{ order.id|slice(0, 15) }}…</td>
+                <td>{{ order.amount|number_format(2, ',', ' ') }} €</td>
+                <td>{{ order.fees|number_format(2, ',', ' ') }} €</td>
+                <td><strong>{{ order.totalAmount|number_format(2, ',', ' ') }} €</strong></td>
+                <td>{{ order.createdAt|date('d/m/Y H:i') }}</td>
+                <td>
+                    <a href="#" class="btn btn-sm btn-outline-primary align-items-center gap-1">
+                        <i class="bi bi-eye"></i> Voir
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="d-flex justify-content-center align-items-center mt-5">
+        <div class="card text-center shadow-sm p-4 rounded" style="max-width: 800px;">
+            <div class="card-body">
+                <i class="bi bi-cart-x fs-1 mb-3"></i>
+                <h5 class="card-title">Aucune commande pour le moment</h5>
+                <p class="card-text text-muted">
+                    Vous n'avez encore passé aucune commande. Explorez les offres et faites vos premiers achats !
+                </p>
+                <a href="#" class="btn btn-outline-primary d-flex align-items-center gap-1">
+                    <i class="bi bi-bag-plus"></i> Commencer à commander
+                </a>
+            </div>
+        </div>
+    </div>
+{% endif %}

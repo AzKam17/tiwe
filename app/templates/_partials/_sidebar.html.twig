@@ -8,6 +8,12 @@
        href="{{ path('app_auth_products_home') }}" data-turbo-frame="main-content-frame">
         <i class="bi bi-box-seam me-2"></i> Mes produits
     </a>
+
+    <a class="nav-link d-flex align-items-center mb-2 {% if app.request.attributes.get('_route') == 'app_auth_purchases_home' %}text-primary{% endif %}"
+       href="{{ path('app_auth_purchases_home') }}" data-turbo-frame="main-content-frame">
+        <i class="bi bi-box-seam me-2"></i> Mes achats
+    </a>
+
     {# Add more menu items here later #}
 
     <div class="pb-3">
