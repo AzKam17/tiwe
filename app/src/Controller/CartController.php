@@ -2,14 +2,20 @@
 
 namespace App\Controller;
 
+use App\Entity\Order;
+use App\Entity\OrderItem;
 use App\Entity\Product;
+use App\Entity\User;
+use App\Repository\ProductRepository;
 use App\Service\CartService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 #[Route('/cart')]
 final class CartController extends AbstractController
@@ -17,6 +23,49 @@ final class CartController extends AbstractController
     #[Route('/', name: 'app_cart_index')]
     public function index(): Response
     {
+        return $this->render('cart/index.html.twig');
+    }
+
+    #[Route('/confirm', name: 'app_cart_confirm', methods: ['GET'])]
+    public function confirm(
+        #[CurrentUser] User $user,
+        CartService $cartService,
+        ProductRepository $productRepository,
+        EntityManagerInterface $entityManager,
+    ): Response
+    {
+        $amount = 0;
+        $order = new Order();
+        $order->setBuyer($user);
+        $cart = $cartService->getCart();
+        dump($cart);
+        foreach ($cart as $item) {
+            /* @var Product | null $product */
+            $product = $productRepository->find($item['id']);
+            if(!$product) {
+                continue;
+            }
+
+            $quantity = min($item['quantity'], $product->getStock());
+
+            $product->setStock($product->getStock() - $quantity);
+
+            $orderItem = (new OrderItem())
+                ->setProduct($product)
+                ->setQuantity($quantity);
+
+            $entityManager->persist($orderItem);
+
+            $order->addItem($orderItem);
+            $amount += $product->getPrice() * $orderItem->getQuantity();
+        }
+
+        $order->setAmount($amount);
+        $order->setFees(0);
+        $order->setTotalAmount($amount);
+        $entityManager->persist($order);
+        $entityManager->flush();
+
         return $this->render('cart/index.html.twig');
     }
 

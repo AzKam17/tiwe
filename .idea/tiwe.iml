@@ -136,6 +136,8 @@
       <excludeFolder url="file://$MODULE_DIR$/app/vendor/twig/twig" />
       <excludeFolder url="file://$MODULE_DIR$/app/vendor/webmozart/assert" />
       <excludeFolder url="file://$MODULE_DIR$/app/vendor/twig/string-extra" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/carbonphp/carbon-doctrine-types" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/nesbot/carbon" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

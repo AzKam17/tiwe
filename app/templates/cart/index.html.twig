@@ -26,7 +26,7 @@
                         </p>
 
                         {% if app.user %}
-                            <a href="#" class="btn btn-success w-100 mb-2">
+                            <a href="{{ path('app_cart_confirm') }}" class="btn btn-success w-100 mb-2">
                                 Passer la commande
                             </a>
                         {% else %}

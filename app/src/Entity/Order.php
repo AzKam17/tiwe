@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\OrderRepository;
+use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,6 +14,7 @@ use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: '`order`')]
+#[ORM\HasLifecycleCallbacks]
 class Order
 {
     #[ORM\Id]
@@ -96,10 +99,10 @@ class Order
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    #[ORM\PrePersist]
+    public function setCreatedAt(): static
     {
-        $this->createdAt = $createdAt;
-
+        $this->createdAt = CarbonImmutable::now()->toDateTimeImmutable();
         return $this;
     }
 
@@ -108,10 +111,11 @@ class Order
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function setUpdatedAt(): static
     {
-        $this->updatedAt = $updatedAt;
-
+        $this->updatedAt = CarbonImmutable::now()->toDateTimeImmutable();
         return $this;
     }
 

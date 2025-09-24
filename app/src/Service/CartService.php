@@ -3,6 +3,7 @@
 // src/Service/CartService.php
 namespace App\Service;
 
+use App\Entity\Product;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
