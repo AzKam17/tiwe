@@ -25,8 +25,19 @@
                             Total : <strong>{{ total }} €</strong>
                         </p>
 
-                        <a href="#" class="btn btn-success w-100 mb-2">Passer la commande</a>
-                        <a href="#" class="btn btn-secondary w-100">Continuer mes achats</a>
+                        {% if app.user %}
+                            <a href="#" class="btn btn-success w-100 mb-2">
+                                Passer la commande
+                            </a>
+                        {% else %}
+                            <a href="{{ path('app_security_login') }}" class="btn btn-warning w-100 mb-2">
+                                Connectez-vous pour commander
+                            </a>
+                        {% endif %}
+
+                        <a href="{{ path('app_home') }}" class="btn btn-secondary w-100">
+                            Continuer mes achats
+                        </a>
                     {% endif %}
                 </div>
             </div>
