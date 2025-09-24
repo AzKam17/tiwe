@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\OrderStatus;
 use App\Repository\OrderRepository;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
@@ -47,6 +48,9 @@ class Order
      */
     #[ORM\OneToMany(targetEntity: OrderItem::class, mappedBy: 'master')]
     private Collection $items;
+
+    #[ORM\Column(type: 'string', enumType: OrderStatus::class)]
+    private OrderStatus $status = OrderStatus::PENDING;
 
     public function __construct()
     {
@@ -158,6 +162,17 @@ class Order
             }
         }
 
+        return $this;
+    }
+
+    public function getStatus(): OrderStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(OrderStatus $status): static
+    {
+        $this->status = $status;
         return $this;
     }
 }

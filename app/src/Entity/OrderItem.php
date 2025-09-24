@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\OrderItemEnum;
 use App\Repository\OrderItemRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -23,6 +24,9 @@ class OrderItem
     #[ORM\ManyToOne(inversedBy: 'items')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Order $master = null;
+
+    #[ORM\Column(type: 'string', enumType: OrderItemEnum::class)]
+    private ?OrderItemEnum $status = OrderItemEnum::PENDING;
 
     public function getId(): ?int
     {
@@ -62,6 +66,17 @@ class OrderItem
     {
         $this->master = $master;
 
+        return $this;
+    }
+
+    public function getStatus(): ?OrderItemEnum
+    {
+        return $this->status;
+    }
+
+    public function setStatus(OrderItemEnum $status): static
+    {
+        $this->status = $status;
         return $this;
     }
 }
