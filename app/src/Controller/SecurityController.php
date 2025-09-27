@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Company;
 use App\Entity\Role;
 use App\Entity\User;
 use App\Form\CheckEmailFormType;
@@ -131,6 +132,10 @@ class SecurityController extends AbstractController
             $user->setPassword($hashedPassword);
 
             $em->persist($user);
+            $em->flush();
+
+            $company = Company::fromUser($user);
+            $em->persist($company);
             $em->flush();
 
             $request->getSession()->remove('user');

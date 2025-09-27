@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Company;
 use App\Entity\Role;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -34,6 +35,10 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
         $user->addAttachedRole($roleAdmin);
 
         $manager->persist($user);
+        $manager->flush();
+
+        $company = Company::fromUser($user);
+        $manager->persist($company);
         $manager->flush();
     }
 

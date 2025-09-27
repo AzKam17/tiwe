@@ -73,6 +73,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'buyer')]
     private Collection $purchases;
 
+    #[ORM\ManyToOne(inversedBy: 'users')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Company $company = null;
+
     public function __construct()
     {
         $this->attachedRoles = new ArrayCollection();
@@ -292,6 +296,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $purchase->setBuyer(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCompany(): ?Company
+    {
+        return $this->company;
+    }
+
+    public function setCompany(?Company $company): static
+    {
+        $this->company = $company;
 
         return $this;
     }
