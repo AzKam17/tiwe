@@ -23,7 +23,7 @@
                 {% for product in products %}
                     <tr>
                         <td class="py-2 px-3">
-                            <a href="" class="text-decoration-none">
+                            <a href="#" class="text-decoration-none cursor-pointer" data-bs-toggle="modal" data-bs-target="#productModal{{ product.id }}">
                                 <strong>{{ product.title }}</strong>
                             </a>
                         </td>
@@ -33,6 +33,80 @@
                         <td class="py-2 px-3">{{ product.createdBy ? product.createdBy.email : '—' }}</td>
                         <td class="py-2 px-3">{{ product.description|u.truncate(20, '…') }}</td>
                     </tr>
+
+                    {# Edit Modal #}
+                    <div class="modal fade" id="productModal{{ product.id }}" tabindex="-1" aria-labelledby="productModalLabel{{ product.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="productModalLabel{{ product.id }}">
+                                        <i class="bi bi-box-seam me-1"></i> Modifier: {{ product.title }}
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                                </div>
+                                <form method="POST" action="{{ path('app_auth_products_update', {id: product.id}) }}" data-turbo="false">
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="title{{ product.id }}" class="form-label">Titre</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-tag-fill"></i></span>
+                                                <input type="text" class="form-control" id="title{{ product.id }}" name="title" value="{{ product.title }}">
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="price{{ product.id }}" class="form-label">Prix (FCFA)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-cash-coin"></i></span>
+                                                <input type="number" class="form-control" id="price{{ product.id }}" name="price" value="{{ product.price }}" step="0.01">
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="stock{{ product.id }}" class="form-label">Stock</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-box2-fill"></i></span>
+                                                <input type="number" class="form-control" id="stock{{ product.id }}" name="stock" value="{{ product.stock }}">
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="category{{ product.id }}" class="form-label">Catégorie</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-list-ul"></i></span>
+                                                <select class="form-select" id="category{{ product.id }}" name="category">
+                                                    <option value="">— Sélectionner —</option>
+                                                    {% for cat in categories %}
+                                                        <option value="{{ cat.id }}" {% if product.category and product.category.id == cat.id %}selected{% endif %}>
+                                                            {{ cat.title }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="description{{ product.id }}" class="form-label">Description</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                                                <textarea class="form-control" id="description{{ product.id }}" name="description" rows="3">{{ product.description }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                            <i class="bi bi-x-circle"></i> Annuler
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-save"></i> Enregistrer
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
                 {% endfor %}
                 </tbody>
             </table>
