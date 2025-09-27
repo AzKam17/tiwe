@@ -1,8 +1,188 @@
 {% extends 'base_dashboard.html.twig' %}
 
-{% block title %}Mes Produits{% endblock %}
+{% block title %}Accueil{% endblock %}
 
 {% block body %}
-    <h1>Bienvenue sur votre dashboard</h1>
-    <p>Le contenu principal s'affiche ici.</p>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm rounded">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="card-title mb-2">Solde</h5>
+                        <p class="card-text display-6 fw-bold mb-3">
+                            {{ user.company.balance|number_format(0, ',', ' ') }} FCFA
+                        </p>
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#depositModal">
+                            <i class="bi bi-plus-lg"></i> Recharger mon compte
+                        </button>
+                    </div>
+                    <i class="bi bi-wallet2 display-4 text-primary"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deposit Options Modal -->
+    <div class="modal fade" id="depositModal" tabindex="-1" aria-labelledby="depositModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="depositModalLabel">Sélectionnez l'option de dépôt</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <button class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-between"
+                            data-bs-toggle="modal" data-bs-target="#tutorialModal" data-bs-dismiss="modal">
+                    <span class="d-flex align-items-center gap-2">
+                        <i class="bi bi-bank"></i> Virement depuis ma banque
+                    </span>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+                    <small class="text-muted d-block mt-1">Gratuit</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Modal -->
+    <!-- Tutorial Modal -->
+    <div class="modal fade" id="tutorialModal" tabindex="-1" aria-labelledby="tutorialModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold" id="tutorialModalLabel">Comment ça marche ?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Step 1 -->
+                    <div class="d-flex align-items-center gap-3 mb-3 p-3 rounded-3" style="background-color: #e0e7ff;">
+                        <div class="badge rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+                            <i class="bi bi-bank"></i>
+                        </div>
+                        <div>Choisissez la banque d'où vous allez faire le virement</div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="d-flex align-items-center gap-3 mb-3 p-3 rounded-3" style="background-color: #ffe4e6;">
+                        <div class="badge rounded-circle bg-danger text-white d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+                            <i class="bi bi-list-check"></i>
+                        </div>
+                        <div>Effectuez le virement en choisissant l’une des options disponibles</div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="d-flex align-items-center gap-3 mb-3 p-3 rounded-3" style="background-color: #fff4e5;">
+                        <div class="badge rounded-circle bg-warning text-white d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+                            <i class="bi bi-cash"></i>
+                        </div>
+                        <div>Entrez le montant viré depuis votre compte bancaire</div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="d-flex align-items-center gap-3 mb-3 p-3 rounded-3" style="background-color: #dcfce7;">
+                        <div class="badge rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+                            <i class="bi bi-camera"></i>
+                        </div>
+                        <div>Uploadez une capture d'écran de la confirmation</div>
+                    </div>
+                    <button class="btn btn-primary w-100 mt-3" data-bs-toggle="modal" data-bs-target="#bankSelectionModal" data-bs-dismiss="modal">Choisir la banque
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Bank Selection Modal -->
+    <!-- Bank Selection Modal -->
+    <div class="modal fade" id="bankSelectionModal" tabindex="-1" aria-labelledby="bankSelectionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="bankSelectionModalLabel">Sélectionnez une banque</h5>
+                <small class="text-muted">Étape 1/2</small>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="mb-3"><strong>Montant minimum de versement:</strong> 30 000 FCFA</p>
+
+                <!-- Bank 1 -->
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="badge rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+                                <i class="bi bi-bank"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">BRIDGE BANK GROUP</div>
+                                <small class="text-muted">Délai de traitement: 5h</small><br>
+                                <small>Bénéficiaire: Tiwe</small><br>
+                                <small>Numéro de compte: 19104250001...</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bank 2 -->
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="badge rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+                                <i class="bi bi-bank"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">ECOBANK CI</div>
+                                <small class="text-muted">Délai de traitement: 5h</small><br>
+                                <small>Bénéficiaire: Tiwe</small><br>
+                                <small>Numéro de compte: 121177469002...</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary w-100 mt-3" data-bs-toggle="modal" data-bs-target="#bankTransferStep2Modal" data-bs-dismiss="modal">Etape suivante</button>
+
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Bank Transfer Step 2 Modal -->
+    <div class="modal fade" id="bankTransferStep2Modal" tabindex="-1" aria-labelledby="bankTransferStep2ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4">
+                <form action="{{ path('app_dashboard_recharge') }}" method="POST" enctype="multipart/form-data" data-turbo="true" data-turbo-frame="_top">
+                    <div class="modal-header border-0 d-flex justify-content-between align-items-center">
+                        <h5 class="modal-title fw-bold" id="bankTransferStep2ModalLabel">Virement depuis ma banque</h5>
+                        <small class="text-muted">Étape 2/2</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <!-- Account Holder -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Titulaire du compte</label>
+                            <input type="text" name="account_holder" class="form-control" placeholder="Titulaire du compte" required>
+                        </div>
+
+                        <!-- Transfer Amount -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Montant du transfert</label>
+                            <div class="input-group">
+                                <input type="number" name="amount" class="form-control" placeholder="0" required>
+                                <span class="input-group-text">FCFA</span>
+                            </div>
+                        </div>
+
+                        <!-- Transaction Proof -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Preuve de transaction</label>
+                            <input type="file" name="transaction_proof" class="form-control" required>
+                            <small class="text-muted">Cliquez pour importer un fichier</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Valider le virement</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock %}
