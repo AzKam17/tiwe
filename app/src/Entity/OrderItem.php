@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Enum\OrderItemEnum;
 use App\Repository\OrderItemRepository;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
+use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: OrderItemRepository::class)]

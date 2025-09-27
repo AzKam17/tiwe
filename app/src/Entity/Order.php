@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\OrderItemEnum;
 use App\Enum\OrderStatus;
 use App\Repository\OrderRepository;
 use Carbon\Carbon;
@@ -59,6 +60,29 @@ class Order
     public function __construct()
     {
         $this->items = new ArrayCollection();
+    }
+
+    public function updateStatusBasedOnItems(): void
+    {
+        $allDelivered = true;
+        $anyCanceled = true;
+
+        foreach ($this->items as $item) {
+            if ($item->getStatus() !== OrderItemEnum::DELIVERED) {
+                $allDelivered = false;
+            }
+            if ($item->getStatus() !== OrderItemEnum::CANCELED) {
+                $anyCanceled = false;
+            }
+        }
+
+        if ($anyCanceled) {
+            $this->status = OrderStatus::CANCELED;
+        } elseif ($allDelivered) {
+            $this->status = OrderStatus::DELIVERED;
+        } else {
+            $this->status = OrderStatus::PENDING;
+        }
     }
 
     public function getId(): ?Uuid
