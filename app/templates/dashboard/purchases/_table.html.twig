@@ -10,9 +10,9 @@
                 <thead class="bg-light">
                 <tr>
                     <th>ID</th>
-                    <th>Montant</th>
-                    <th>Frais</th>
-                    <th>Total</th>
+                    <th class="text-end">Montant</th>
+                    <th class="text-end">Frais</th>
+                    <th class="text-end">Total</th>
                     <th>Date</th>
                     <th>Status</th>
                     <th></th>
@@ -22,9 +22,9 @@
                 {% for order in orders %}
                     <tr>
                         <td><strong>#{{ order.slug }}</strong></td>
-                        <td>{{ order.amount|number_format(2, ',', ' ') }} €</td>
-                        <td>{{ order.fees|number_format(2, ',', ' ') }} €</td>
-                        <td><strong>{{ order.totalAmount|number_format(2, ',', ' ') }} €</strong></td>
+                        <td class="text-end">{{ order.amount|number_format(2, ',', ' ') }} €</td>
+                        <td class="text-end">{{ order.fees|number_format(2, ',', ' ') }} €</td>
+                        <td class="text-end"><strong>{{ order.totalAmount|number_format(2, ',', ' ') }} €</strong></td>
                         <td>{{ order.createdAt|date('d/m/Y H:i') }}</td>
                         <td>
                             <span class="badge rounded-pill {{ order.status|order_status_badge }}">
@@ -33,7 +33,7 @@
                             </span>
                         </td>
                         <td>
-                            <a href="{{ path('app_auth_orders_details', {id: order.id}) }}" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
+                            <a href="{{ path('app_auth_purchases_details', {id: order.id}) }}" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
                                 <i class="bi bi-eye"></i> Voir
                             </a>
                         </td>

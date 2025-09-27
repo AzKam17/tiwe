@@ -57,8 +57,32 @@ class OrderRepository extends ServiceEntityRepository
             $qb->setMaxResults($limit);
         }
 
-        return $qb->getQuery()->getResult();
+        $orders = $qb->getQuery()->getResult();
+
+        foreach ($orders as $order) {
+            $itemsToKeep = [];
+
+            $sellersProducts = array_map(
+                fn($item) => $item->getProduct()->getId(),
+                array_filter(
+                    $order->getItems()->toArray(),
+                    fn($item) => $item->getProduct()->getCreatedBy() === $user
+                )
+            );
+
+            $itemsToKeep = array_filter(
+                $order->getItems()->toArray(),
+                fn($item) => in_array($item->getProduct()->getId(), $sellersProducts, true)
+            );
+
+            $order->emptyItems()->addItems($itemsToKeep);
+
+            $order->computeAmount()->computeTotalAmount();
+        }
+
+        return $orders;
     }
+
 
 
     //    /**
