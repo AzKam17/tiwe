@@ -28,7 +28,7 @@ class Company
     private Collection $users;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true, onDelete: "SET NULL")]
     private ?User $owner = null;
 
     public function __construct()
@@ -41,7 +41,7 @@ class Company
         return (new Company())
             ->setOwner($user)
             ->setBalance(0.0)
-            ->setName($user->getFirstName() ?? $user->getLastName() . "'s Company");
+            ->setName(($user->getFirstName() ?? $user->getLastName()) . "'s Company");
     }
 
     public function getId(): ?int
