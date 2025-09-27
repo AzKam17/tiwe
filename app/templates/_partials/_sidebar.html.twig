@@ -1,25 +1,27 @@
 <nav class="nav flex-column pt-3">
-    <a class="nav-link d-flex align-items-center mb-2 {% if app.request.attributes.get('_route') == 'app_dashboard_home' %}text-primary{% endif %}"
-       href="{{ path('app_dashboard_home') }}" data-turbo-frame="main-content-frame">
+    <a class="nav-link d-flex align-items-center mb-2
+        {% if app.request.attributes.get('_route') == 'app_dashboard_home' %}active bg-primary text-white fw-bold rounded px-3{% else %}text-dark{% endif %}"
+       href="{{ path('app_dashboard_home') }}">
         <i class="bi bi-box-seam me-2"></i> Accueil
     </a>
 
-    <a class="nav-link d-flex align-items-center mb-2 {% if app.request.attributes.get('_route') == 'app_auth_products_home' %}text-primary{% endif %}"
-       href="{{ path('app_auth_products_home') }}" data-turbo-frame="main-content-frame">
+    <a class="nav-link d-flex align-items-center mb-2
+        {% if app.request.attributes.get('_route') == 'app_auth_products_home' %}active bg-primary text-white fw-bold rounded px-3{% else %}text-dark{% endif %}"
+       href="{{ path('app_auth_products_home') }}">
         <i class="bi bi-box-seam me-2"></i> Mes produits
     </a>
 
-    <a class="nav-link d-flex align-items-center mb-2 {% if app.request.attributes.get('_route') == 'app_auth_purchases_home' %}text-primary{% endif %}"
-       href="{{ path('app_auth_purchases_home') }}" data-turbo-frame="main-content-frame">
-        <i class="bi bi-box-seam me-2"></i> Mes achats
+    <a class="nav-link d-flex align-items-center mb-2
+        {% if app.request.attributes.get('_route') == 'app_auth_purchases_home' %}active bg-primary text-white fw-bold rounded px-3{% else %}text-dark{% endif %}"
+       href="{{ path('app_auth_purchases_home') }}">
+        <i class="bi bi-bag me-2"></i> Mes achats
     </a>
 
-    <a class="nav-link d-flex align-items-center mb-2 {% if app.request.attributes.get('_route') == 'app_auth_orders_home' %}text-primary{% endif %}"
-       href="{{ path('app_auth_orders_home') }}" data-turbo-frame="main-content-frame">
+    <a class="nav-link d-flex align-items-center mb-2
+        {% if app.request.attributes.get('_route') == 'app_auth_orders_home' %}active bg-primary text-white fw-bold rounded px-3{% else %}text-dark{% endif %}"
+       href="{{ path('app_auth_orders_home') }}">
         <i class="bi bi-receipt me-2"></i> Commandes clients
     </a>
-
-    {# Add more menu items here later #}
 
     <div class="pb-3">
         <a class="nav-link d-flex align-items-center text-primary" target="_top" href="{{ path('app_home') }}">
