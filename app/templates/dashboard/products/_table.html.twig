@@ -22,9 +22,13 @@
                 <tbody>
                 {% for product in products %}
                     <tr>
-                        <td class="py-2 px-3"><strong>{{ product.title }}</strong></td>
+                        <td class="py-2 px-3">
+                            <a href="" class="text-decoration-none">
+                                <strong>{{ product.title }}</strong>
+                            </a>
+                        </td>
                         <td class="py-2 px-3 text-end"><strong>{{ product.price|number_format(2, ',', ' ') }} FCFA</strong></td>
-                        <td class="py-2 px-3 text-end">{{ product.stock }}</td>
+                        <td class="py-2 px-3 text-end">{{ product.stock }} unité(s)</td>
                         <td class="py-2 px-3">{{ product.category ? product.category.title : '—' }}</td>
                         <td class="py-2 px-3">{{ product.createdBy ? product.createdBy.email : '—' }}</td>
                         <td class="py-2 px-3">{{ product.description|u.truncate(20, '…') }}</td>
