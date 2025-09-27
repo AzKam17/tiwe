@@ -1,9 +1,58 @@
 {{ form_start(form, {
     action: action is defined ? action : path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')),
     attr: {
-        'data-turbo': turbo is defined and turbo == false ? 'false' : 'true'
+        'data-turbo': turbo is defined and turbo == false ? 'false' : 'true',
+        'class': 'needs-validation'
     }
 }) }}
-    {{ form_widget(form) }}
-    <button class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+
+<div class="mb-3">
+    <label for="{{ form.title.vars.id }}" class="form-label">Titre</label>
+    <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-tag-fill"></i></span>
+        {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Nom du produit'}}) }}
+    </div>
+    {{ form_errors(form.title) }}
+</div>
+
+<div class="mb-3">
+    <label for="{{ form.stock.vars.id }}" class="form-label">Stock</label>
+    <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-box2-fill"></i></span>
+        {{ form_widget(form.stock, {'attr': {'class': 'form-control', 'placeholder': 'Quantité en stock'}}) }}
+    </div>
+    {{ form_errors(form.stock) }}
+</div>
+
+<div class="mb-3">
+    <label for="{{ form.price.vars.id }}" class="form-label">Prix</label>
+    <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-cash-coin"></i></span>
+        {{ form_widget(form.price, {'attr': {'class': 'form-control', 'placeholder': 'Prix en FCFA'}}) }}
+    </div>
+    {{ form_errors(form.price) }}
+</div>
+
+<div class="mb-3">
+    <label for="{{ form.description.vars.id }}" class="form-label">Description</label>
+    <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Description du produit'}}) }}
+    </div>
+    {{ form_errors(form.description) }}
+</div>
+
+<div class="mb-3">
+    <label for="{{ form.category.vars.id }}" class="form-label">Catégorie</label>
+    <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-list-ul"></i></span>
+        {{ form_widget(form.category, {'attr': {'class': 'form-select'}}) }}
+    </div>
+    {{ form_errors(form.category) }}
+</div>
+
+<button class="btn btn-primary d-flex align-items-center gap-2">
+    <i class="bi bi-plus-circle"></i> {{ button_label|default('Enregistrer') }}
+</button>
+
 {{ form_end(form) }}
