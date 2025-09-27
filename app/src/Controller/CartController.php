@@ -34,11 +34,11 @@ final class CartController extends AbstractController
         EntityManagerInterface $entityManager,
     ): Response
     {
-        $amount = 0;
+
         $order = new Order();
         $order->setBuyer($user);
         $cart = $cartService->getCart();
-        dump($cart);
+
         foreach ($cart as $item) {
             /* @var Product | null $product */
             $product = $productRepository->find($item['id']);
@@ -51,18 +51,18 @@ final class CartController extends AbstractController
             $product->setStock($product->getStock() - $quantity);
 
             $orderItem = (new OrderItem())
+                ->setPrice($product->getPrice())
                 ->setProduct($product)
                 ->setQuantity($quantity);
 
             $entityManager->persist($orderItem);
 
             $order->addItem($orderItem);
-            $amount += $product->getPrice() * $orderItem->getQuantity();
         }
 
-        $order->setAmount($amount);
+        $order->computeAmount();
         $order->setFees(0);
-        $order->setTotalAmount($amount);
+        $order->computeTotalAmount();
         $entityManager->persist($order);
         $entityManager->flush();
 

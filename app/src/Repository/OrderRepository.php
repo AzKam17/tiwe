@@ -35,6 +35,32 @@ class OrderRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Get all orders that include at least one product from a specific seller (store).
+     *
+     * @param User $user The seller whose orders should be retrieved.
+     * @param int|null $limit Optional limit on the number of results.
+     * @return Order[] Returns an array of Order objects.
+     */
+    public function getOrdersForSeller(User $user, ?int $limit = null): array
+    {
+        $qb = $this->createQueryBuilder('o')
+            ->distinct()
+            ->innerJoin('o.items', 'oi')
+            ->innerJoin('oi.product', 'p')
+            ->innerJoin('p.createdBy', 'seller')
+            ->andWhere('seller = :user')
+            ->setParameter('user', $user)
+            ->orderBy('o.createdAt', 'DESC');
+
+        if ($limit !== null) {
+            $qb->setMaxResults($limit);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+
     //    /**
     //     * @return Order[] Returns an array of Order objects
     //     */

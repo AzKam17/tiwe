@@ -1,0 +1,9 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mes Achats{% endblock %}
+
+{% block body %}
+    <h1>Commandes clients</h1>
+    <p class="text-muted">Les commandes effectuées par vos clients seront affichés ici.</p>
+    {% include 'dashboard/orders/_table.html.twig' %}
+{% endblock %}

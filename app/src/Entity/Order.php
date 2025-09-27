@@ -78,6 +78,14 @@ class Order
         return $this;
     }
 
+    public function computeAmount(): static
+    {
+        $total = array_reduce(
+            $this->items->toArray(), fn($sum, OrderItem $item) => $sum + ($item->getProduct()->getPrice() * $item->getQuantity()), 0);
+        $this->setAmount($total);
+        return $this;
+    }
+
     public function getFees(): ?float
     {
         return $this->fees;
@@ -99,6 +107,12 @@ class Order
     {
         $this->totalAmount = $totalAmount;
 
+        return $this;
+    }
+
+    public function computeTotalAmount(): static
+    {
+        $this->setTotalAmount(($this->amount ?? 0) + ($this->fees ?? 0));
         return $this;
     }
 
@@ -166,6 +180,22 @@ class Order
             }
         }
 
+        return $this;
+    }
+
+    public function addItems(array $items): static
+    {
+        foreach ($items as $item) {
+            $this->addItem($item);
+        }
+        return $this;
+    }
+
+    public function emptyItems(): static
+    {
+        foreach ($this->items as $item) {
+            $this->removeItem($item);
+        }
         return $this;
     }
 

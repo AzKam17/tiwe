@@ -2,7 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\Order;
+use App\Entity\OrderItem;
 use App\Entity\Product;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,6 +22,31 @@ class ProductRepository extends ServiceEntityRepository
     public function getTrending()
     {
         return $this->findAll();
+    }
+
+    /**
+     * Get all products for a given order and seller.
+     *
+     * @param Order $order The order to fetch products from.
+     * @param User $buyer The buyer who owns the order.
+     * @return Product[] Returns an array of Product objects.
+     */
+    public function getOrderProducts(Order $order, User $seller): array
+    {
+        $orderItems = $this->getEntityManager()->createQueryBuilder()
+            ->select('oi')
+            ->from(OrderItem::class, 'oi')
+            ->join('oi.master', 'o')
+            ->join('oi.product', 'p')
+            ->where('o = :order')
+            ->andWhere('p.createdBy = :seller')
+            ->setParameter('order', $order)
+            ->setParameter('seller', $seller)
+            ->orderBy('p.title', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return array_map(fn($oi) => $oi->getProduct(), $orderItems);
     }
 
 //    /**
