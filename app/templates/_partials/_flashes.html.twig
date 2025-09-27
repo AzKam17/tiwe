@@ -1,7 +1,15 @@
-{% for label, messages in app.flashes %}
+{% for type, messages in app.flashes %}
     {% for message in messages %}
-        <div class="alert alert-{{ label }} mb-3" role="alert">
-            {{ message }}
+        <div class="alert alert-{{ type }} alert-dismissible fade show mt-3 d-flex align-items-center" role="alert">
+            <i class="bi me-2
+                {% if type == 'success' %}bi-check-circle-fill text-white{% endif %}
+                {% if type == 'danger' %}bi-x-circle-fill text-white{% endif %}
+                {% if type == 'warning' %}bi-exclamation-triangle-fill text-white{% endif %}
+                {% if type == 'info' %}bi-info-circle-fill text-white{% endif %}
+            "></i>
+            <span>{{ message }}</span>
+
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Fermer"></button>
         </div>
     {% endfor %}
 {% endfor %}
