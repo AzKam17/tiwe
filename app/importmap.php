@@ -25,4 +25,7 @@ return [
     '@hotwired/turbo' => [
         'version' => '7.3.0',
     ],
+    'countup.js' => [
+        'version' => '2.9.0',
+    ],
 ];

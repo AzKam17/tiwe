@@ -35,7 +35,7 @@ final class DashboardController extends AbstractController
         $accountHolder = $request->request->get('account_holder');
         $transactionProof = $request->files->get('transaction_proof');
 
-        $transaction = Transaction::initDeposit(
+        $transaction = Transaction::initBankDeposit(
             amount: (float)$amount,
             totalAmount: (float)$amount,
             receiver: $user,

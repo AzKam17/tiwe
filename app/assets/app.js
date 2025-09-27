@@ -1,4 +1,29 @@
 import './bootstrap.js';
+import { CountUp } from 'countup.js';
+
+function animateBalance(){
+    const balanceEl = document.getElementById('balance');
+    if (!balanceEl) return;
+
+    const finalValue = parseInt(balanceEl.dataset.value, 10);
+
+    const countUp = new CountUp('balance', finalValue, {
+        duration: 2,
+        separator: ' ',
+        suffix: ' FCFA'
+    });
+
+    if (!countUp.error) {
+        countUp.start();
+    } else {
+        console.error(countUp.error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', animateBalance);
+document.addEventListener('turbo:load', animateBalance);
+
+
 /*
  * Welcome to your app's main JavaScript file!
  *

@@ -48,7 +48,7 @@ class Transaction
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    public static function initDeposit(
+    public static function initBankDeposit(
         float $amount,
         float $totalAmount,
         ?float $fees = 0,
@@ -61,7 +61,7 @@ class Transaction
         $transaction->setTotalAmount($totalAmount - $fees);
         $transaction->setType(TransactionType::DEPOSIT);
         $transaction->setReceiver($receiver);
-        $transaction->setDescription('Rechargement ' . $amount . ' FCFA');
+        $transaction->setDescription('Rechargement par virement bancaire de ' . $amount . ' FCFA');
 
         return $transaction;
     }
