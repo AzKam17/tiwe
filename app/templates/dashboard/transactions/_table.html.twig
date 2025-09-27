@@ -1,0 +1,70 @@
+{% if transactions|length > 0 %}
+    <div class="card shadow-sm rounded">
+        <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+            <h5>
+                <i class="bi bi-credit-card me-1"></i> Transactions récentes
+            </h5>
+            <span class="badge bg-primary rounded-pill">{{ transactions|length }}</span>
+        </div>
+        <div class="card-body p-0">
+            <table class="table mb-0 table-outer-border">
+                <thead class="bg-light">
+                <tr>
+                    <th><i class="bi bi-calendar-event me-1"></i> Date</th>
+                    <th class="text-end"><i class="bi bi-arrows-left-right me-1"></i> Type</th>
+                    <th class="text-end"><i class="bi bi-currency-exchange me-1"></i> Montant</th>
+                    <th class="text-end"><i class="bi bi-check2-circle me-1"></i> Statut</th>
+                    <th><i class="bi bi-hash me-1"></i> Référence</th>
+                    <th><i class="bi bi-gear me-1"></i> Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for transaction in transactions %}
+                    <tr>
+                        <!-- Date -->
+                        <td>{{ transaction.createdAt|date('d/m/Y H:i') }}</td>
+
+                        <!-- Transaction type with icon -->
+                        <td class="text-end">
+                            <i class="{{ transaction.type|transaction_type_icon }} me-1"></i>
+                            {{ transaction.type|transaction_type_lib }}
+                        </td>
+
+                        <!-- Amount -->
+                        <td class="text-end">
+                            <strong>{{ transaction.amount|number_format(0, ',', ' ') }} FCFA</strong>
+                        </td>
+
+                        <!-- Status badge -->
+                        <td class="text-end">
+                            Terminé
+                        </td>
+
+                        <td><strong>#{{ transaction.id }}</strong></td>
+
+                        <!-- Action -->
+                        <td>
+                            <a href="#" class="btn btn-sm btn-outline-primary align-items-center gap-1">
+                                <i class="bi bi-eye"></i> Voir
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% else %}
+    <div class="card text-center shadow-sm p-4 rounded">
+        <div class="card-body">
+            <i class="bi bi-credit-card-x fs-1 mb-3"></i>
+            <h5 class="card-title">Aucune transaction pour le moment</h5>
+            <p class="card-text text-muted">
+                Vous n'avez pas encore effectué de transactions. Rechargez votre compte ou effectuez un transfert pour commencer !
+            </p>
+            <a href="#" class="btn btn-outline-primary d-flex align-items-center gap-1">
+                <i class="bi bi-plus-circle"></i> Nouvelle transaction
+            </a>
+        </div>
+    </div>
+{% endif %}

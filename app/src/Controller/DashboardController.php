@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Transaction;
 use App\Entity\User;
+use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,10 +18,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class DashboardController extends AbstractController
 {
     #[Route('/dashboard', name: 'app_dashboard_home')]
-    public function index(#[CurrentUser] User $user): Response
+    public function index(#[CurrentUser] User $user, TransactionRepository $transactionRepository): Response
     {
         return $this->render('dashboard/home.html.twig', [
             'user' => $user,
+            'transactions' => $transactionRepository->findAllByCompany(
+                $user->getCompany()
+            ),
         ]);
     }
 

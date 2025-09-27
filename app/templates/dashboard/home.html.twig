@@ -31,6 +31,8 @@
         </div>
     </div>
 
+    {% include 'dashboard/transactions/_table.html.twig' with {'transactions': transactions} %}
+
     <!-- Deposit Options Modal -->
     <div class="modal fade" id="depositModal" tabindex="-1" aria-labelledby="depositModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
