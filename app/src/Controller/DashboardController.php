@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Transaction;
 use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,13 +25,36 @@ final class DashboardController extends AbstractController
     }
 
     #[Route('/recharge', name: 'app_dashboard_recharge')]
-    public function recharge(#[CurrentUser] User $user, Request $request): Response
+    public function recharge(
+        #[CurrentUser] User $user,
+        Request $request,
+        EntityManagerInterface $em,
+    ): Response
     {
         $amount = $request->request->get('amount');
         $accountHolder = $request->request->get('account_holder');
         $transactionProof = $request->files->get('transaction_proof');
 
-        dump($amount, $accountHolder, $transactionProof);
+        $transaction = Transaction::initDeposit(
+            amount: (float)$amount,
+            totalAmount: (float)$amount,
+            receiver: $user,
+        );
+
+        $em->persist($transaction);
+
+        $company = $user->getCompany();
+        if ($company) {
+            $company->rechargeAmount(
+                $transaction->getTotalAmount()
+            );
+            $em->persist($company);
+        }
+
+        $em->flush();
+
+        $this->addFlash('success', 'Votre compte a été rechargé avec succès.');
+
         return $this->redirectToRoute('app_dashboard_home', [], Response::HTTP_SEE_OTHER);
     }
 }

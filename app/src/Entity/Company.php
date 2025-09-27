@@ -115,4 +115,23 @@ class Company
 
         return $this;
     }
+
+    public function rechargeAmount(float $amount): static
+    {
+        $currentBalance = $this->getBalance() ?? 0.0;
+        $this->setBalance($currentBalance + $amount);
+
+        return $this;
+    }
+
+    public function getTransactions(): array
+    {
+        return array_values(
+            array_reduce(
+                array_merge(...array_map(fn($user) => $user->getTransactions()->toArray(), $this->users->toArray())),
+                fn($carry, $transaction) => $carry + [$transaction->getId() => $transaction],
+                []
+            )
+        );
+    }
 }

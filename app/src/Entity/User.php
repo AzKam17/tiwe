@@ -77,11 +77,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinColumn(nullable: true)]
     private ?Company $company = null;
 
+    /**
+     * @var Collection<int, Transaction>
+     */
+    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'sender')]
+    private Collection $sendedTransactions;
+
+    /**
+     * @var Collection<int, Transaction>
+     */
+    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'receiver')]
+    private Collection $receivedTransactions;
+
     public function __construct()
     {
         $this->attachedRoles = new ArrayCollection();
         $this->products = new ArrayCollection();
         $this->purchases = new ArrayCollection();
+        $this->sendedTransactions = new ArrayCollection();
+        $this->receivedTransactions = new ArrayCollection();
     }
 
     public function getId(): ?Uuid
@@ -308,6 +322,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCompany(?Company $company): static
     {
         $this->company = $company;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Transaction>
+     */
+    public function getSendedTransactions(): Collection
+    {
+        return $this->sendedTransactions;
+    }
+
+    public function addSendedTransaction(Transaction $sendedTransaction): static
+    {
+        if (!$this->sendedTransactions->contains($sendedTransaction)) {
+            $this->sendedTransactions->add($sendedTransaction);
+            $sendedTransaction->setSender($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSendedTransaction(Transaction $sendedTransaction): static
+    {
+        if ($this->sendedTransactions->removeElement($sendedTransaction)) {
+            // set the owning side to null (unless already changed)
+            if ($sendedTransaction->getSender() === $this) {
+                $sendedTransaction->setSender(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Transaction>
+     */
+    public function getReceivedTransactions(): Collection
+    {
+        return $this->receivedTransactions;
+    }
+
+    public function addReceivedTransaction(Transaction $receivedTransaction): static
+    {
+        if (!$this->receivedTransactions->contains($receivedTransaction)) {
+            $this->receivedTransactions->add($receivedTransaction);
+            $receivedTransaction->setReceiver($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReceivedTransaction(Transaction $receivedTransaction): static
+    {
+        if ($this->receivedTransactions->removeElement($receivedTransaction)) {
+            // set the owning side to null (unless already changed)
+            if ($receivedTransaction->getReceiver() === $this) {
+                $receivedTransaction->setReceiver(null);
+            }
+        }
 
         return $this;
     }
