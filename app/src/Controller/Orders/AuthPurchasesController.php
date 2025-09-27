@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Orders;
 
+use App\Entity\Order;
 use App\Entity\User;
 use App\Repository\OrderRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,6 +25,22 @@ class AuthPurchasesController extends AbstractController
     {
         return $this->render('dashboard/purchases/index.html.twig', [
             'orders' => $orderRepository->getMyPurchases($user)
+        ]);
+    }
+
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/{id}', name: 'app_auth_purchases_details')]
+    public function details(
+        Order $order,
+        #[CurrentUser] User $user,
+    ): Response
+    {
+        if ($order->getBuyer()->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException('You do not have access to this order.');
+        }
+        return $this->render('dashboard/purchases/details.html.twig', [
+            'order' => $order
         ]);
     }
 }

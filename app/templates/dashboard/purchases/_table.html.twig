@@ -23,7 +23,7 @@
                 <td><strong>{{ order.totalAmount|number_format(2, ',', ' ') }} €</strong></td>
                 <td>{{ order.createdAt|date('d/m/Y H:i') }}</td>
                 <td>
-                    <a href="" class="btn btn-sm btn-outline-primary align-items-center gap-1">
+                    <a href="{{ path('app_auth_purchases_details', {id: order.id}) }}" class="btn btn-sm btn-outline-primary align-items-center gap-1">
                         <i class="bi bi-eye"></i> Voir
                     </a>
                 </td>

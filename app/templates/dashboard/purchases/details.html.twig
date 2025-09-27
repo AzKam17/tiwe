@@ -1,0 +1,37 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Commande #{{ order.slug }}{% endblock %}
+
+{% block body %}
+    <h1>Commande #{{ order.slug }}</h1>
+
+    <div class="row mt-4">
+        <!-- Left column: payment method & delivery details -->
+        <div class="col-md-4 d-flex flex-column gap-3">
+            <div class="card shadow-sm rounded">
+                <div class="card-header fw-bold">
+                    Méthode de paiement
+                </div>
+                <div class="card-body">
+                    <!-- Empty for now -->
+                    <p class="text-muted mb-0">Aucune information pour le moment.</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm rounded">
+                <div class="card-header fw-bold">
+                    Détails de livraison
+                </div>
+                <div class="card-body">
+                    <!-- Empty for now -->
+                    <p class="text-muted mb-0">Aucune information pour le moment.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right column: order details -->
+        <div class="col-md-8">
+            {% include 'dashboard/purchases/_details.html.twig' %}
+        </div>
+    </div>
+{% endblock %}
