@@ -5,13 +5,8 @@
 
         <div class="d-flex align-items-center gap-2">
             <!-- Status badge -->
-            <span class="badge rounded-pill
-                {% if order.status == constant('App\\Enum\\OrderStatus::PENDING') %}bg-warning
-                {% elseif order.status == constant('App\\Enum\\OrderStatus::DELIVERED') %}bg-success
-                {% elseif order.status == constant('App\\Enum\\OrderStatus::CANCELED') %}bg-danger
-                {% else %}bg-secondary{% endif %}
-            ">
-                {{ order.status.name|capitalize }}
+            <span class="badge rounded-pill {{ order.status|order_status_badge }}">
+                {{ order.status|order_status_lib }}
             </span>
 
             <!-- Dropdown -->

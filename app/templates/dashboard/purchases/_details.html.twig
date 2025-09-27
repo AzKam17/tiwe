@@ -1,13 +1,8 @@
 <div class="card shadow-sm rounded mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span>Commande <strong>#{{ order.slug }}</strong></span>
-        <span class="badge
-            {% if order.status == constant('App\\Enum\\OrderStatus::PENDING') %}bg-warning
-            {% elseif order.status == constant('App\\Enum\\OrderStatus::DELIVERED') %}bg-success
-            {% elseif order.status == constant('App\\Enum\\OrderStatus::CANCELED') %}bg-danger
-            {% else %}bg-secondary{% endif %}
-        ">
-            {{ order.status.name|capitalize }}
+        <span class="badge rounded-pill {{ order.status|order_status_badge }}">
+                <i class="bi {{ order.status.name | status_icon }} me-2"></i>{{ order.status|order_status_lib }}
         </span>
     </div>
 
@@ -30,15 +25,8 @@
                                 {% endif %}
                                 <div class="d-flex gap-2 align-items-center">
                                     <span>Qté: <strong>{{ item.quantity }}</strong></span>
-                                    <span class="badge
-                                        {% if item.status == constant('App\\Enum\\OrderItemEnum::PENDING') %}bg-warning
-                                        {% elseif item.status == constant('App\\Enum\\OrderItemEnum::CONFIRMED') %}bg-info
-                                        {% elseif item.status == constant('App\\Enum\\OrderItemEnum::SHIPPED') %}bg-primary
-                                        {% elseif item.status == constant('App\\Enum\\OrderItemEnum::DELIVERED') %}bg-success
-                                        {% elseif item.status == constant('App\\Enum\\OrderItemEnum::CANCELED') %}bg-danger
-                                        {% else %}bg-secondary{% endif %}
-                                    ">
-                                        {{ item.status.name|capitalize }}
+                                    <span class="badge {{ item.status|order_item_status_badge }}">
+                                        {{ item.status|order_item_status_lib }}
                                     </span>
                                 </div>
                             </div>
