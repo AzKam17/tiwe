@@ -1,34 +1,77 @@
 <div class="card shadow-sm rounded mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Commande <strong>#{{ order.slug }}</strong></span>
-        <span class="badge
-            {% if order.status == constant('App\\Enum\\OrderStatus::PENDING') %}bg-warning
-            {% elseif order.status == constant('App\\Enum\\OrderStatus::DELIVERED') %}bg-success
-            {% elseif order.status == constant('App\\Enum\\OrderStatus::CANCELED') %}bg-danger
-            {% else %}bg-secondary{% endif %}
-        ">
-            {{ order.status.name|capitalize }}
-        </span>
+    <!-- Header -->
+    <div class="card-header d-flex justify-content-between align-items-center bg-light border-bottom">
+        <span class="fs-5 fw-bold">Commande <strong>#{{ order.slug }}</strong></span>
+
+        <div class="d-flex align-items-center gap-2">
+            <!-- Status badge -->
+            <span class="badge rounded-pill
+                {% if order.status == constant('App\\Enum\\OrderStatus::PENDING') %}bg-warning
+                {% elseif order.status == constant('App\\Enum\\OrderStatus::DELIVERED') %}bg-success
+                {% elseif order.status == constant('App\\Enum\\OrderStatus::CANCELED') %}bg-danger
+                {% else %}bg-secondary{% endif %}
+            ">
+                {{ order.status.name|capitalize }}
+            </span>
+
+            <!-- Dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="orderStatusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Mettre à jour
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="orderStatusDropdown">
+                    <li>
+                        <form method="post" action="{{ path('app_order_update_status', {id: order.id, status: 'CONFIRMED'}) }}">
+                            <button type="submit" class="dropdown-item">
+                                <i class="bi bi-gear me-2"></i> En traitement
+                            </button>
+                        </form>
+                    </li>
+                    <li>
+                        <form method="post" action="{{ path('app_order_update_status', {id: order.id, status: 'SHIPPED'}) }}">
+                            <button type="submit" class="dropdown-item">
+                                <i class="bi bi-truck me-2"></i> Expédié
+                            </button>
+                        </form>
+                    </li>
+                    <li>
+                        <form method="post" action="{{ path('app_order_update_status', {id: order.id, status: 'DELIVERED'}) }}">
+                            <button type="submit" class="dropdown-item">
+                                <i class="bi bi-check-circle me-2"></i> Livré
+                            </button>
+                        </form>
+                    </li>
+                    <li>
+                        <form method="post" action="{{ path('app_order_update_status', {id: order.id, status: 'CANCELED'}) }}">
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="bi bi-x-circle me-2"></i> Annulé
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
 
+    <!-- Body -->
     <div class="card-body p-3">
         {% if order.items|length > 0 %}
             <div class="d-flex flex-column gap-3">
                 {% for item in order.items %}
-                    <div class="d-flex align-items-center justify-content-between p-2 border rounded shadow-sm">
+                    <div class="d-flex align-items-center justify-content-between p-3 border rounded shadow-sm hover-shadow transition">
                         <div class="d-flex align-items-center gap-3">
                             <img src="https://picsum.photos/80/80?random={{ item.product.id }}"
-                                 class="rounded-3"
+                                 class="rounded-3 border"
                                  style="width:80px; height:80px; object-fit:cover;"
                                  alt="{{ item.product.title }}">
                             <div>
-                                <div class="fw-bold">{{ item.product.title }}</div>
+                                <div class="fw-bold fs-6">{{ item.product.title }}</div>
                                 {% if item.product.createdBy %}
                                     <small class="text-muted d-flex align-items-center gap-1 mb-1">
                                         <i class="bi bi-shop"></i> {{ item.product.createdBy.firstName ~ ' ' ~ item.product.createdBy.lastName }}
                                     </small>
                                 {% endif %}
-                                <div class="d-flex gap-2 align-items-center">
+                                <div class="d-flex gap-2 align-items-center mt-1">
                                     <span>Qté: <strong>{{ item.quantity }}</strong></span>
                                     <span class="badge {{ item.status|order_item_status_badge }}">
                                         {{ item.status|order_item_status_lib }}
@@ -39,19 +82,30 @@
 
                         <div class="text-end">
                             <div>Prix: {{ item.product.price|number_format(2, ',', ' ') }} €</div>
-                            <div>Total: {{ (item.product.price * item.quantity)|number_format(2, ',', ' ') }} €</div>
+                            <div class="fw-bold">Total: {{ (item.product.price * item.quantity)|number_format(2, ',', ' ') }} €</div>
                         </div>
                     </div>
                 {% endfor %}
             </div>
         {% else %}
-            <div class="p-3 text-center text-muted">
+            <div class="p-4 text-center text-muted">
                 Aucun produit dans cette commande.
             </div>
         {% endif %}
     </div>
 
-    <div class="card-footer text-end">
+    <!-- Footer -->
+    <div class="card-footer text-end bg-light border-top">
         <strong>Total commande: {{ order.totalAmount|number_format(2, ',', ' ') }} €</strong>
     </div>
 </div>
+
+<style>
+    .hover-shadow:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+        transition: box-shadow 0.3s ease;
+    }
+    .transition {
+        transition: all 0.3s ease;
+    }
+</style>

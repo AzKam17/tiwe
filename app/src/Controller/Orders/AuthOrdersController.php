@@ -8,8 +8,10 @@ use App\Entity\Order;
 use App\Entity\OrderItem;
 use App\Entity\Product;
 use App\Entity\User;
+use App\Enum\OrderItemEnum;
 use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -54,5 +56,30 @@ class AuthOrdersController extends AbstractController
         return $this->render('dashboard/orders/details.html.twig', [
             'order' => $order,
         ]);
+    }
+
+
+    #[Route('/{id}/{status}', name: 'app_order_update_status')]
+    public function updateStatus(Order $order, $status, #[CurrentUser] User $user, ProductRepository $productRepository, EntityManagerInterface $em): Response
+    {
+        $orderStatus = OrderItemEnum::tryFrom($status);
+        if (!$orderStatus) {
+            throw $this->createNotFoundException();
+        }
+
+        $sellerProductsId = array_map(function (Product $product) {
+            return $product->getId();
+        }, $productRepository->getOrderProducts($order, $user));
+
+        foreach ($order->getItems() as $item) {
+            if (in_array($item->getProduct()->getId(), $sellerProductsId, true)) {
+                $item->setStatus($orderStatus);
+                $em->persist($item);
+            }
+        }
+
+        $em->flush();
+
+        return $this->redirectToRoute('app_auth_orders_details', ['id' => $order->getId()] );
     }
 }
