@@ -25,6 +25,21 @@ class ProductRepository extends ServiceEntityRepository
     }
 
     /**
+     * Get recently added products as suggestions for inventory entry
+     *
+     * @param int $limit Maximum number of products to return
+     * @return Product[] Returns an array of recently added Product objects
+     */
+    public function getRecentProductsForSuggestions(int $limit = 10): array
+    {
+        return $this->createQueryBuilder('p')
+            ->orderBy('p.id', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Get all products for a given order and seller.
      *
      * @param Order $order The order to fetch products from.

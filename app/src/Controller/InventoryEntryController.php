@@ -20,9 +20,14 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class InventoryEntryController extends AbstractController
 {
     #[Route('/entry/search', name: 'app_inventory_entry_search')]
-    public function search(): Response
+    public function search(ProductRepository $productRepository): Response
     {
-        return $this->render('inventory_entry/search.html.twig');
+        // Get recent products as initial suggestions
+        $suggestions = $productRepository->getRecentProductsForSuggestions(4);
+
+        return $this->render('inventory_entry/search.html.twig', [
+            'suggestions' => $suggestions,
+        ]);
     }
 
     #[Route('/entry/search/results', name: 'app_inventory_entry_search_results')]

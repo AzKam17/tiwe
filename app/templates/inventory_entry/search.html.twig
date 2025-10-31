@@ -36,10 +36,70 @@
             </div>
 
             <div id="search-results">
-                <div class="text-center text-muted py-5">
-                    <i class="bi bi-search fs-1 d-block mb-3 opacity-25"></i>
-                    <p class="mb-0">Tapez le nom d'un produit pour commencer</p>
-                </div>
+                {% if suggestions is not empty %}
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-3">
+                            <i class="bi bi-clock-history me-1"></i>
+                            Produits récents
+                        </h6>
+                    </div>
+                    <div class="list-group">
+                        {% for product in suggestions %}
+                            <a
+                                href="{{ path('app_inventory_entry_form', {productId: product.id}) }}"
+                                class="list-group-item list-group-item-action product-item py-3"
+                            >
+                                <div class="d-flex align-items-center">
+                                    {% if product.images is not empty and product.images[0] is defined %}
+                                        <img
+                                            src="{{ product.images[0] }}"
+                                            alt="{{ product.title }}"
+                                            class="rounded me-3"
+                                            style="width: 48px; height: 48px; object-fit: cover;"
+                                            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+                                        >
+                                        <div class="rounded me-3 bg-light d-none align-items-center justify-content-center border" style="width: 48px; height: 48px;">
+                                            <i class="bi bi-box-seam text-muted"></i>
+                                        </div>
+                                    {% else %}
+                                        <div class="rounded me-3 bg-light d-flex align-items-center justify-content-center border" style="width: 48px; height: 48px;">
+                                            <i class="bi bi-box-seam text-muted"></i>
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1">
+                                                    <i class="bi bi-box-seam me-1 text-muted"></i>
+                                                    {{ product.title }}
+                                                </h6>
+                                                <div class="text-muted small">
+                                                    {% if product.category %}
+                                                        <i class="bi bi-tag me-1"></i>
+                                                        {{ product.category.title }}
+                                                    {% endif %}
+                                                    {% if product.measurementUnit %}
+                                                        <span class="ms-2">
+                                                            <i class="bi bi-rulers me-1"></i>
+                                                            {{ product.measurementUnit }}
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <i class="bi bi-chevron-right text-muted"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-search fs-1 d-block mb-3 opacity-25"></i>
+                        <p class="mb-0">Tapez le nom d'un produit pour commencer</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
 
@@ -59,23 +119,24 @@
         const searchInput = document.getElementById('productSearch');
         const resultsContainer = document.getElementById('search-results');
         let searchTimeout;
+        let isSearching = false;
+
+        // Store initial suggestions HTML
+        const initialSuggestionsHTML = resultsContainer.innerHTML;
 
         searchInput.addEventListener('input', function(e) {
             clearTimeout(searchTimeout);
             const query = e.target.value.trim();
 
             if (query.length < 2) {
-                // Reset to initial state
-                resultsContainer.innerHTML = `
-                    <div class="text-center text-muted py-5">
-                        <i class="bi bi-search fs-1 d-block mb-3 opacity-25"></i>
-                        <p class="mb-0">Tapez le nom d'un produit pour commencer</p>
-                    </div>
-                `;
+                // Restore initial suggestions
+                resultsContainer.innerHTML = initialSuggestionsHTML;
+                isSearching = false;
                 return;
             }
 
             // Show loading state
+            isSearching = true;
             resultsContainer.innerHTML = `
                 <div class="text-center text-muted py-5">
                     <div class="spinner-border" role="status">
@@ -102,4 +163,13 @@
             }, 300);
         });
     </script>
+
+    <style>
+        .product-item {
+            transition: background-color 0.15s;
+        }
+        .product-item:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
 {% endblock %}
