@@ -1,0 +1,193 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Enregistrer une entrée{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">
+            <i class="bi bi-plus-circle me-2"></i> Enregistrer une entrée d'inventaire
+        </h1>
+        <a href="{{ path('app_inventory_entry_search') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i> Retour
+        </a>
+    </div>
+
+    <p class="text-muted">Renseignez la quantité et le prix du produit à ajouter à votre inventaire</p>
+
+    {% include '_partials/_flashes.html.twig' %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm rounded mb-4">
+                <div class="card-header fw-bold d-flex align-items-center">
+                    <i class="bi bi-box-seam me-2"></i> Produit sélectionné
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        {% if product.images is not empty and product.images[0] is defined %}
+                            <img
+                                src="{{ product.images[0] }}"
+                                alt="{{ product.title }}"
+                                class="rounded me-3"
+                                style="width: 64px; height: 64px; object-fit: cover;"
+                            >
+                        {% else %}
+                            <div class="rounded me-3 bg-light d-flex align-items-center justify-content-center border" style="width: 64px; height: 64px;">
+                                <i class="bi bi-box-seam text-muted fs-3"></i>
+                            </div>
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">{{ product.title }}</h5>
+                            <p class="text-muted mb-0 small">
+                                {% if product.category %}
+                                    <i class="bi bi-tag me-1"></i>
+                                    {{ product.category.title }}
+                                {% endif %}
+                            </p>
+                        </div>
+                        <a href="{{ path('app_inventory_entry_search') }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil me-1"></i> Modifier
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm rounded">
+                <div class="card-header fw-bold">
+                    <i class="bi bi-card-list me-2"></i> Détails de l'entrée
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {attr: {'class': 'needs-validation'}}) }}
+
+                    <div class="mb-3">
+                        {{ form_label(form.quantity, 'Quantité', {
+                            label_attr: {class: 'form-label fw-semibold'}
+                        }) }}
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text"><i class="bi bi-box2-fill"></i></span>
+                            {{ form_widget(form.quantity, {
+                                attr: {
+                                    class: 'form-control',
+                                    placeholder: 'Ex: 100'
+                                }
+                            }) }}
+                            <span class="input-group-text bg-light">
+                                {{ product.measurementUnit|default('unité') }}
+                            </span>
+                        </div>
+                        {{ form_errors(form.quantity) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.price, 'Prix unitaire', {
+                            label_attr: {class: 'form-label fw-semibold'}
+                        }) }}
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text"><i class="bi bi-cash-coin"></i></span>
+                            {{ form_widget(form.price, {
+                                attr: {
+                                    class: 'form-control',
+                                    placeholder: 'Ex: 2.50'
+                                }
+                            }) }}
+                            <span class="input-group-text bg-light">FCFA / {{ product.measurementUnit|default('unité') }}</span>
+                        </div>
+                        {{ form_errors(form.price) }}
+                    </div>
+
+                    <div class="alert alert-info d-flex align-items-center">
+                        <i class="bi bi-calculator fs-4 me-3"></i>
+                        <div class="flex-grow-1">
+                            <small class="d-block mb-1">Valeur totale estimée</small>
+                            <strong class="fs-5" id="totalValue">—</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.notes, 'Notes (optionnel)', {
+                            label_attr: {class: 'form-label'}
+                        }) }}
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                            {{ form_widget(form.notes, {
+                                attr: {
+                                    class: 'form-control',
+                                    rows: '3',
+                                    placeholder: 'Ex: Récolte du 15 octobre, qualité premium...'
+                                }
+                            }) }}
+                        </div>
+                        {{ form_errors(form.notes) }}
+                    </div>
+
+                    {{ form_rest(form) }}
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle"></i> Enregistrer l'entrée
+                        </button>
+                        <a href="{{ path('app_inventory_entry_search') }}" class="btn btn-outline-secondary">
+                            Annuler
+                        </a>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm rounded">
+                <div class="card-header fw-bold">
+                    <i class="bi bi-info-circle me-2"></i> Aide
+                </div>
+                <div class="card-body">
+                    <h6 class="fw-semibold mb-2">Quantité</h6>
+                    <p class="small text-muted mb-3">
+                        Indiquez la quantité disponible à ajouter à votre inventaire.
+                    </p>
+
+                    <h6 class="fw-semibold mb-2">Prix unitaire</h6>
+                    <p class="small text-muted mb-3">
+                        Le prix de vente par {{ product.measurementUnit|default('unité') }} que vous proposez.
+                    </p>
+
+                    <h6 class="fw-semibold mb-2">Notes</h6>
+                    <p class="small text-muted mb-0">
+                        Ajoutez des informations complémentaires comme la date de récolte, la qualité, etc.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Calculate total value in real-time
+        const quantityInput = document.querySelector('input[name*="[quantity]"]');
+        const priceInput = document.querySelector('input[name*="[price]"]');
+        const totalValueEl = document.getElementById('totalValue');
+
+        function updateTotal() {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const price = parseFloat(priceInput.value) || 0;
+            const total = quantity * price;
+
+            if (quantity > 0 && price > 0) {
+                totalValueEl.textContent = new Intl.NumberFormat('fr-FR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(total) + ' FCFA';
+                totalValueEl.style.color = '#0d6efd';
+            } else {
+                totalValueEl.textContent = '—';
+                totalValueEl.style.color = '';
+            }
+        }
+
+        quantityInput.addEventListener('input', updateTotal);
+        priceInput.addEventListener('input', updateTotal);
+
+        // Initial calculation if values exist
+        updateTotal();
+    </script>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Enregistrer une entrée{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">
+            <i class="bi bi-search me-2"></i> Rechercher un produit
+        </h1>
+        <a href="{{ path('app_auth_products_home') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i> Retour
+        </a>
+    </div>
+
+    <p class="text-muted">Recherchez le produit que vous souhaitez ajouter à votre inventaire</p>
+
+    <div class="card shadow-sm rounded">
+        <div class="card-body">
+            <div class="mb-4">
+                <label for="productSearch" class="form-label fw-semibold">Rechercher un produit</label>
+                <div class="input-group input-group-lg">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="productSearch"
+                        placeholder="Ex: Tomates, Oignons..."
+                        autocomplete="off"
+                        autofocus
+                    >
+                </div>
+                <small class="text-muted d-block mt-2">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    Commencez à taper pour voir les suggestions
+                </small>
+            </div>
+
+            <div id="search-results">
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-search fs-1 d-block mb-3 opacity-25"></i>
+                    <p class="mb-0">Tapez le nom d'un produit pour commencer</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer bg-light">
+            <p class="text-muted small mb-0">
+                <i class="bi bi-info-circle me-1"></i>
+                Vous ne trouvez pas votre produit ?
+                <a href="{{ path('app_auth_products_new') }}" class="text-primary">
+                    Créer un nouveau produit
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-search with debounce
+        const searchInput = document.getElementById('productSearch');
+        const resultsContainer = document.getElementById('search-results');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+
+            if (query.length < 2) {
+                // Reset to initial state
+                resultsContainer.innerHTML = `
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-search fs-1 d-block mb-3 opacity-25"></i>
+                        <p class="mb-0">Tapez le nom d'un produit pour commencer</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Show loading state
+            resultsContainer.innerHTML = `
+                <div class="text-center text-muted py-5">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Recherche...</span>
+                    </div>
+                    <p class="mb-0 mt-3">Recherche en cours...</p>
+                </div>
+            `;
+
+            searchTimeout = setTimeout(() => {
+                fetch(`{{ path('app_inventory_entry_search_results') }}?q=${encodeURIComponent(query)}`)
+                    .then(response => response.text())
+                    .then(html => {
+                        resultsContainer.innerHTML = html;
+                    })
+                    .catch(error => {
+                        resultsContainer.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                Une erreur est survenue lors de la recherche.
+                            </div>
+                        `;
+                    });
+            }, 300);
+        });
+    </script>
+{% endblock %}

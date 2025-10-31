@@ -1,0 +1,80 @@
+{% if products is empty %}
+    <div class="alert alert-light border text-center">
+        <i class="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
+        <p class="mb-1 fw-semibold">Aucun produit trouvé</p>
+        <p class="text-muted small mb-0">
+            Essayez avec un autre terme de recherche ou
+            <a href="{{ path('app_auth_products_new') }}" class="text-primary">
+                créez un nouveau produit
+            </a>
+        </p>
+    </div>
+{% else %}
+    <div class="list-group">
+        {% for product in products %}
+            <a
+                href="{{ path('app_inventory_entry_form', {productId: product.id}) }}"
+                class="list-group-item list-group-item-action product-item py-3"
+            >
+                <div class="d-flex align-items-center">
+                    {% if product.images is not empty and product.images[0] is defined %}
+                        <img
+                            src="{{ product.images[0] }}"
+                            alt="{{ product.title }}"
+                            class="rounded me-3"
+                            style="width: 48px; height: 48px; object-fit: cover;"
+                            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+                        >
+                        <div class="rounded me-3 bg-light d-none align-items-center justify-content-center border" style="width: 48px; height: 48px;">
+                            <i class="bi bi-box-seam text-muted"></i>
+                        </div>
+                    {% else %}
+                        <div class="rounded me-3 bg-light d-flex align-items-center justify-content-center border" style="width: 48px; height: 48px;">
+                            <i class="bi bi-box-seam text-muted"></i>
+                        </div>
+                    {% endif %}
+
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">
+                                    <i class="bi bi-box-seam me-1 text-muted"></i>
+                                    {{ product.title }}
+                                </h6>
+                                <div class="text-muted small">
+                                    {% if product.category %}
+                                        <i class="bi bi-tag me-1"></i>
+                                        {{ product.category.title }}
+                                    {% endif %}
+                                    {% if product.measurementUnit %}
+                                        <span class="ms-2">
+                                            <i class="bi bi-rulers me-1"></i>
+                                            {{ product.measurementUnit }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-right text-muted"></i>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+
+    {% if products|length >= 10 %}
+        <p class="text-center text-muted small mt-3 mb-0">
+            <i class="bi bi-funnel me-1"></i>
+            Affinez votre recherche pour voir plus de résultats
+        </p>
+    {% endif %}
+{% endif %}
+
+<style>
+    .product-item {
+        transition: background-color 0.15s;
+    }
+    .product-item:hover {
+        background-color: #f8f9fa;
+    }
+</style>

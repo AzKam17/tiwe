@@ -5,8 +5,9 @@
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="mb-0">Inventaire</h1>
-        <a href="{{ path('app_auth_products_new') }}" data-turbo-frame="main-content-frame">
-            <button type="button" class="btn btn-primary">Ajouter un article</button>
+        <a href="{{ path('app_inventory_entry_search') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>
+            Enregistrer une entrée
         </a>
     </div>
 
@@ -14,5 +15,5 @@
 
     {% include '_partials/_flashes.html.twig' %}
 
-    {% include 'dashboard/products/_table.html.twig' with {'products': products} %}
+    {#  {% include 'dashboard/products/_table.html.twig' with {'products': products} %} #}
 {% endblock %}
