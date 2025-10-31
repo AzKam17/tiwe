@@ -34,3 +34,17 @@ services:
             - './app:/application'
             - './phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/8.4/fpm/conf.d/99-overrides.ini'
             - './phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/8.4/cli/conf.d/99-overrides.ini'
+
+    typesense:
+        image: 'typesense/typesense:29.0'
+        environment:
+            - TYPESENSE_DATA_DIR=/data
+            - TYPESENSE_API_KEY=xyzkey
+        volumes:
+            - 'typesense-data:/data'
+        ports:
+            - '60005:8108'
+        command: '--data-dir /data --api-key=xyzkey --enable-cors'
+
+volumes:
+    typesense-data:

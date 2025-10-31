@@ -27,11 +27,14 @@ class Product
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column]
-    private ?int $stock = null;
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $measurementType = null;
 
-    #[ORM\Column]
-    private ?float $price = 0;
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $measurementUnit = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $images = [];
 
     public function getId(): ?int
     {
@@ -86,26 +89,38 @@ class Product
         return $this;
     }
 
-    public function getStock(): ?int
+    public function getMeasurementType(): ?string
     {
-        return $this->stock;
+        return $this->measurementType;
     }
 
-    public function setStock(int $stock): static
+    public function setMeasurementType(?string $measurementType): static
     {
-        $this->stock = $stock;
+        $this->measurementType = $measurementType;
 
         return $this;
     }
 
-    public function getPrice(): ?float
+    public function getMeasurementUnit(): ?string
     {
-        return $this->price;
+        return $this->measurementUnit;
     }
 
-    public function setPrice(float $price): static
+    public function setMeasurementUnit(?string $measurementUnit): static
     {
-        $this->price = $price;
+        $this->measurementUnit = $measurementUnit;
+
+        return $this;
+    }
+
+    public function getImages(): ?array
+    {
+        return $this->images;
+    }
+
+    public function setImages(?array $images): static
+    {
+        $this->images = $images;
 
         return $this;
     }

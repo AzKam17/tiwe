@@ -1,0 +1,72 @@
+[
+  {
+    "name": "Tomates",
+    "category": { "main": "Épicerie", "sub": "Légumes" },
+    "description": "Tomates rouges fraîches cultivées localement.",
+    "measurement_type": { "type": "weight", "unit": "kg" },
+    "images": ["https://exemple.com/images/tomates.jpg"]
+  },
+  {
+    "name": "Oignons",
+    "category": { "main": "Épicerie", "sub": "Légumes" },
+    "description": "Oignons jaunes séchés, parfaits pour la cuisine quotidienne.",
+    "measurement_type": { "type": "weight", "unit": "kg" },
+    "images": ["https://exemple.com/images/oignons.jpg"]
+  },
+  {
+    "name": "Pommes de terre",
+    "category": { "main": "Épicerie", "sub": "Légumes" },
+    "description": "Pommes de terre fermes et savoureuses, idéales pour la cuisson.",
+    "measurement_type": { "type": "weight", "unit": "kg" },
+    "images": ["https://exemple.com/images/pommes-de-terre.jpg"]
+  },
+  {
+    "name": "Carottes",
+    "category": { "main": "Épicerie", "sub": "Légumes" },
+    "description": "Carottes fraîches croquantes, riches en vitamines.",
+    "measurement_type": { "type": "weight", "unit": "kg" },
+    "images": ["https://exemple.com/images/carottes.jpg"]
+  },
+  {
+    "name": "Riz blanc",
+    "category": { "main": "Épicerie", "sub": "Céréales" },
+    "description": "Riz blanc long grain, facile à cuire et léger.",
+    "measurement_type": { "type": "weight", "unit": "kg" },
+    "images": ["https://exemple.com/images/riz-blanc.jpg"]
+  },
+  {
+    "name": "Maïs jaune",
+    "category": { "main": "Épicerie", "sub": "Céréales" },
+    "description": "Grains de maïs séchés, parfaits pour la transformation.",
+    "measurement_type": { "type": "weight", "unit": "kg" },
+    "images": ["https://exemple.com/images/mais-jaune.jpg"]
+  },
+  {
+    "name": "Haricots rouges",
+    "category": { "main": "Épicerie", "sub": "Légumineuses" },
+    "description": "Haricots rouges secs riches en protéines et fibres.",
+    "measurement_type": { "type": "weight", "unit": "kg" },
+    "images": ["https://exemple.com/images/haricots-rouges.jpg"]
+  },
+  {
+    "name": "Pois chiches",
+    "category": { "main": "Épicerie", "sub": "Légumineuses" },
+    "description": "Pois chiches secs, parfaits pour les plats traditionnels.",
+    "measurement_type": { "type": "weight", "unit": "kg" },
+    "images": ["https://exemple.com/images/pois-chiches.jpg"]
+  },
+  {
+    "name": "Fraises",
+    "category": { "main": "Épicerie", "sub": "Fruits" },
+    "description": "Fraises fraîches et sucrées, idéales pour les desserts.",
+    "measurement_type": { "type": "weight", "unit": "kg" },
+    "images": ["https://exemple.com/images/fraises.jpg"]
+  },
+  {
+    "name": "Bananes",
+    "category": { "main": "Épicerie", "sub": "Fruits" },
+    "description": "Bananes mûres et sucrées, prêtes à consommer.",
+    "measurement_type": { "type": "weight", "unit": "kg" },
+    "images": ["https://exemple.com/images/bananes.jpg"]
+  }
+]
