@@ -138,6 +138,19 @@
       <excludeFolder url="file://$MODULE_DIR$/app/vendor/twig/string-extra" />
       <excludeFolder url="file://$MODULE_DIR$/app/vendor/carbonphp/carbon-doctrine-types" />
       <excludeFolder url="file://$MODULE_DIR$/app/vendor/nesbot/carbon" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/clue/stream-filter" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/knplabs/knp-components" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/knplabs/knp-paginator-bundle" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/nyholm/psr7" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/php-http/client-common" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/php-http/discovery" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/php-http/httplug" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/php-http/message" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/php-http/promise" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/psr/http-client" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/psr/http-factory" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/psr/http-message" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/typesense/typesense-php" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
