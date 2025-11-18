@@ -37,6 +37,9 @@ class InventoryEntry
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notes = null;
 
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $image = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -115,6 +118,18 @@ class InventoryEntry
     public function setNotes(?string $notes): static
     {
         $this->notes = $notes;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
 
         return $this;
     }

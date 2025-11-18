@@ -9,11 +9,13 @@ use App\Repository\ProductRepository;
 use App\Service\ProductSearchService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[IsGranted('ROLE_USER')]
 #[Route('/inventory')]
@@ -64,6 +66,7 @@ final class InventoryEntryController extends AbstractController
         ProductRepository $productRepository,
         Request $request,
         EntityManagerInterface $em,
+        SluggerInterface $slugger,
         #[CurrentUser] User $user
     ): Response {
         $product = $productRepository->find($productId);
@@ -81,14 +84,40 @@ final class InventoryEntryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Handle the image file upload
+            $imageFile = $form->get('imageFile')->getData();
+
+            if ($imageFile) {
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+                try {
+                    $uploadsDirectory = $this->getParameter('kernel.project_dir').'/public/uploads/inventory_entries';
+
+                    // Create directory if it doesn't exist
+                    if (!is_dir($uploadsDirectory)) {
+                        mkdir($uploadsDirectory, 0777, true);
+                    }
+
+                    $imageFile->move($uploadsDirectory, $newFilename);
+                    $inventoryEntry->setImage('/uploads/inventory_entries/'.$newFilename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
+                }
+            }
+
             $em->persist($inventoryEntry);
             $em->flush();
 
+            $unit = $product->getMeasurementUnit() ?? 'unité';
             $this->addFlash('success', sprintf(
-                'Entr�e d\'inventaire enregistr�e : %s � %.2f %s',
+                'Entrée d\'inventaire enregistrée : %s %s à %.2f FCFA/%s (Total: %s FCFA)',
                 $inventoryEntry->getQuantity(),
+                $unit,
                 (float)$inventoryEntry->getPrice(),
-                $product->getMeasurementUnit() ?? 'unit�'
+                $unit,
+                number_format($inventoryEntry->getTotalPrice(), 2, '.', ' ')
             ));
 
             return $this->redirectToRoute('app_auth_products_home');

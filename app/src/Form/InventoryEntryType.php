@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\InventoryEntry;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -16,14 +17,14 @@ class InventoryEntryType extends AbstractType
     {
         $builder
             ->add('quantity', NumberType::class, [
-                'label' => 'Quantité',
+                'label' => 'Quantitï¿½',
                 'required' => true,
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'La quantité est obligatoire',
+                        'message' => 'La quantitï¿½ est obligatoire',
                     ]),
                     new Assert\Positive([
-                        'message' => 'La quantité doit être supérieure à 0',
+                        'message' => 'La quantitï¿½ doit ï¿½tre supï¿½rieure ï¿½ 0',
                     ]),
                 ],
                 'attr' => [
@@ -39,7 +40,7 @@ class InventoryEntryType extends AbstractType
                         'message' => 'Le prix est obligatoire',
                     ]),
                     new Assert\PositiveOrZero([
-                        'message' => 'Le prix doit être positif',
+                        'message' => 'Le prix doit ï¿½tre positif',
                     ]),
                 ],
                 'attr' => [
@@ -52,6 +53,26 @@ class InventoryEntryType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'rows' => 3,
+                ],
+            ])
+            ->add('imageFile', FileType::class, [
+                'label' => 'Image personnalisÃ©e',
+                'required' => false,
+                'mapped' => false,
+                'constraints' => [
+                    new Assert\File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/jpg',
+                            'image/png',
+                            'image/webp',
+                        ],
+                        'mimeTypesMessage' => 'Veuillez tÃ©lÃ©charger une image valide (JPG, PNG, WEBP)',
+                    ]),
+                ],
+                'attr' => [
+                    'accept' => 'image/*',
                 ],
             ])
         ;
