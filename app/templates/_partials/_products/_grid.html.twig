@@ -216,12 +216,26 @@ let currentMeasurementUnit = 'unité';
 let currentPage = 1;
 let currentSort = 'recent';
 let paginationData = null;
+let cartItems = {};
+
+// Load cart on page load
+function loadCart() {
+    fetch('{{ path('app_cart_get') }}')
+        .then(response => response.json())
+        .then(data => {
+            cartItems = data.cart || {};
+        })
+        .catch(error => console.error('Error loading cart:', error));
+}
 
 function loadInventoryEntries(productId, productTitle, sortBy = 'recent', page = 1) {
     currentProductId = productId;
     currentProductTitle = productTitle;
     currentSort = sortBy;
     currentPage = page;
+
+    // Load cart to get latest state
+    loadCart();
 
     // Update modal title
     document.getElementById('modalProductTitle').textContent = productTitle;
@@ -256,9 +270,11 @@ function loadInventoryEntries(productId, productTitle, sortBy = 'recent', page =
             // Update entry count
             document.getElementById('entryCount').textContent = `${data.pagination.totalEntries} entrée(s)`;
 
-            // Display entries and pagination
-            displayInventoryEntries(data.entries);
-            displayPagination(data.pagination);
+            // Wait a bit for cart to load, then display entries
+            setTimeout(() => {
+                displayInventoryEntries(data.entries);
+                displayPagination(data.pagination);
+            }, 100);
         })
         .catch(error => {
             // Hide loading, show error
@@ -338,16 +354,45 @@ function displayInventoryEntries(entries) {
                         </div>
                         ` : ''}
 
-                        <div class="mt-auto">
-                            <button
-                                type="button"
-                                class="btn btn-primary btn-sm w-100"
-                                onclick="addToBasket(${entry.id}, ${entry.quantity}, ${entry.price})"
-                                style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"
-                            >
-                                <i class="bi bi-cart-plus me-1"></i>
-                                Panier
-                            </button>
+                        <div class="mt-auto" id="cart-btn-${entry.id}">
+                            ${cartItems[entry.id] ? `
+                                <div class="btn-group w-100" role="group">
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-danger btn-sm"
+                                        onclick="decrementCart(${entry.id})"
+                                        style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"
+                                    >
+                                        <i class="bi bi-dash"></i>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary btn-sm"
+                                        style="font-size: 0.75rem; padding: 0.25rem 0.5rem; flex: 1;"
+                                        disabled
+                                    >
+                                        ${cartItems[entry.id].quantity}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-success btn-sm"
+                                        onclick="incrementCart(${entry.id}, ${entry.quantity})"
+                                        style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"
+                                    >
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                            ` : `
+                                <button
+                                    type="button"
+                                    class="btn btn-primary btn-sm w-100"
+                                    onclick="promptQuantityAndAdd(${entry.id}, ${entry.quantity}, ${entry.price})"
+                                    style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"
+                                >
+                                    <i class="bi bi-cart-plus me-1"></i>
+                                    Panier
+                                </button>
+                            `}
                         </div>
                     </div>
                 </div>
@@ -416,14 +461,161 @@ function changePage(page) {
     loadInventoryEntries(currentProductId, currentProductTitle, currentSort, page);
 }
 
-function addToBasket(entryId, quantity, price) {
-    // Placeholder function - will be implemented when cart functionality is added
-    alert(`Ajout au panier:\nEntrée #${entryId}\nQuantité: ${quantity}\nPrix: ${price} FCFA\n\nFonctionnalité à implémenter.`);
-    console.log('Add to basket:', { entryId, quantity, price });
+function promptQuantityAndAdd(entryId, maxQuantity, price) {
+    const quantity = prompt(`Combien d'unités voulez-vous ajouter? (Max: ${maxQuantity})`);
+
+    if (quantity === null) return; // User cancelled
+
+    const qty = parseInt(quantity);
+    if (isNaN(qty) || qty < 1) {
+        alert('Quantité invalide');
+        return;
+    }
+
+    if (qty > maxQuantity) {
+        alert(`Quantité maximale disponible: ${maxQuantity}`);
+        return;
+    }
+
+    addToCart(entryId, qty);
+}
+
+function addToCart(entryId, quantity) {
+    fetch('{{ path('app_cart_add_inventory_entry') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            entryId: entryId,
+            quantity: quantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        // Update cart items
+        loadCart();
+
+        // Reload current page to reflect changes
+        setTimeout(() => {
+            loadInventoryEntries(currentProductId, currentProductTitle, currentSort, currentPage);
+        }, 100);
+
+        // Show success message
+        showToast('Ajouté au panier!', 'success');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Erreur lors de l\'ajout au panier');
+    });
+}
+
+function incrementCart(entryId, maxQuantity) {
+    fetch(`{{ path('app_cart_increment', {id: '__ID__'}) }}`.replace('__ID__', entryId), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        // Update the button to show new quantity
+        updateCartButton(entryId, data.itemQuantity, maxQuantity);
+        cartItems[entryId].quantity = data.itemQuantity;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Erreur lors de la mise à jour');
+    });
+}
+
+function decrementCart(entryId) {
+    fetch(`{{ path('app_cart_decrement', {id: '__ID__'}) }}`.replace('__ID__', entryId), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.itemQuantity === 0) {
+            // Item was removed, reload to show add button
+            delete cartItems[entryId];
+            loadInventoryEntries(currentProductId, currentProductTitle, currentSort, currentPage);
+        } else {
+            // Update the button to show new quantity
+            updateCartButton(entryId, data.itemQuantity, 999);
+            cartItems[entryId].quantity = data.itemQuantity;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Erreur lors de la mise à jour');
+    });
+}
+
+function updateCartButton(entryId, quantity, maxQuantity) {
+    const container = document.getElementById(`cart-btn-${entryId}`);
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="btn-group w-100" role="group">
+            <button
+                type="button"
+                class="btn btn-outline-danger btn-sm"
+                onclick="decrementCart(${entryId})"
+                style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"
+            >
+                <i class="bi bi-dash"></i>
+            </button>
+            <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                style="font-size: 0.75rem; padding: 0.25rem 0.5rem; flex: 1;"
+                disabled
+            >
+                ${quantity}
+            </button>
+            <button
+                type="button"
+                class="btn btn-outline-success btn-sm"
+                onclick="incrementCart(${entryId}, ${maxQuantity})"
+                style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"
+            >
+                <i class="bi bi-plus"></i>
+            </button>
+        </div>
+    `;
+}
+
+function showToast(message, type = 'success') {
+    // Simple toast notification
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} position-fixed top-0 start-50 translate-middle-x mt-3`;
+    toast.style.zIndex = '9999';
+    toast.innerHTML = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 2000);
 }
 
 // Add event listeners for filter buttons
 document.addEventListener('DOMContentLoaded', function() {
+    // Load cart on page load
+    loadCart();
+
     const sortButtons = document.querySelectorAll('input[name="sortOption"]');
     sortButtons.forEach(button => {
         button.addEventListener('change', function() {

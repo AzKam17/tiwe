@@ -51,6 +51,61 @@ class CartService
         $this->getSession()->set(self::CART_KEY, $cart);
     }
 
+    public function updateQuantity(int $id, int $quantity): void
+    {
+        if ($quantity <= 0) {
+            $this->removeItem($id);
+            return;
+        }
+
+        $cart = $this->getCart();
+        if (isset($cart[$id])) {
+            $cart[$id]['quantity'] = $quantity;
+            $this->getSession()->set(self::CART_KEY, $cart);
+        }
+    }
+
+    public function incrementQuantity(int $id, int $increment = 1): void
+    {
+        $cart = $this->getCart();
+        if (isset($cart[$id])) {
+            $cart[$id]['quantity'] += $increment;
+            $this->getSession()->set(self::CART_KEY, $cart);
+        }
+    }
+
+    public function decrementQuantity(int $id, int $decrement = 1): void
+    {
+        $cart = $this->getCart();
+        if (isset($cart[$id])) {
+            $newQuantity = $cart[$id]['quantity'] - $decrement;
+            if ($newQuantity <= 0) {
+                $this->removeItem($id);
+            } else {
+                $cart[$id]['quantity'] = $newQuantity;
+                $this->getSession()->set(self::CART_KEY, $cart);
+            }
+        }
+    }
+
+    public function getItemQuantity(int $id): int
+    {
+        $cart = $this->getCart();
+        return $cart[$id]['quantity'] ?? 0;
+    }
+
+    public function hasItem(int $id): bool
+    {
+        $cart = $this->getCart();
+        return isset($cart[$id]);
+    }
+
+    public function getCartCount(): int
+    {
+        $cart = $this->getCart();
+        return array_sum(array_column($cart, 'quantity'));
+    }
+
     public function shouldShowModal(): bool
     {
         return $this->getSession()->get(self::SHOW_MODAL_KEY, false);
