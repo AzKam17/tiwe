@@ -1,0 +1,170 @@
+{# Product details partial for offcanvas #}
+
+{# Product Header #}
+<div class="p-4 bg-light border-bottom">
+    <div class="text-center mb-3">
+        {% set displayImage = product.getDisplayImageForUser(currentUser) %}
+        {% if displayImage %}
+            <img
+                src="{{ displayImage }}"
+                alt="{{ product.title }}"
+                class="rounded"
+                style="width: 150px; height: 150px; object-fit: cover;"
+            >
+        {% else %}
+            <div class="rounded bg-white d-flex align-items-center justify-content-center border mx-auto" style="width: 150px; height: 150px;">
+                <i class="bi bi-box-seam text-muted" style="font-size: 3rem;"></i>
+            </div>
+        {% endif %}
+    </div>
+
+    <h4 class="mb-2 text-center">{{ product.title }}</h4>
+
+    {% if product.category %}
+        <div class="text-center">
+            <span class="badge bg-secondary">
+                <i class="bi bi-tag me-1"></i>
+                {{ product.category.title }}
+            </span>
+        </div>
+    {% endif %}
+</div>
+
+{# Product Statistics #}
+<div class="p-4 border-bottom">
+    <h6 class="fw-bold mb-3">
+        <i class="bi bi-graph-up me-2"></i>
+        Statistiques d'inventaire
+    </h6>
+
+    <div class="row g-3">
+        <div class="col-6">
+            <div class="card bg-light border-0">
+                <div class="card-body text-center p-3">
+                    <div class="text-muted small mb-1">Quantité totale</div>
+                    <div class="fs-4 fw-bold text-success">
+                        {{ product.totalQuantity }}
+                        {% if product.measurementUnit %}
+                            <small class="fs-6 text-muted">{{ product.measurementUnit }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6">
+            <div class="card bg-light border-0">
+                <div class="card-body text-center p-3">
+                    <div class="text-muted small mb-1">Valeur totale</div>
+                    <div class="fs-4 fw-bold text-primary">
+                        {{ product.totalInventoryValue|number_format(0, '.', ' ') }}
+                        <small class="fs-6 text-muted">FCFA</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card bg-light border-0">
+                <div class="card-body text-center p-3">
+                    <div class="text-muted small mb-1">Prix unitaire récent</div>
+                    <div class="fs-4 fw-bold">
+                        {% if product.latestPrice %}
+                            {{ product.latestPrice|number_format(2, '.', ' ') }}
+                            <small class="fs-6 text-muted">FCFA{% if product.measurementUnit %}/{{ product.measurementUnit }}{% endif %}</small>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Product Information #}
+<div class="p-4 border-bottom">
+    <h6 class="fw-bold mb-3">
+        <i class="bi bi-info-circle me-2"></i>
+        Informations
+    </h6>
+
+    <div class="mb-3">
+        <div class="small text-muted mb-1">Unité de mesure</div>
+        <div class="fw-semibold">
+            {% if product.measurementUnit %}
+                {{ product.measurementUnit }}
+            {% else %}
+                <span class="text-muted">Non défini</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if product.description %}
+        <div class="mb-3">
+            <div class="small text-muted mb-1">Description</div>
+            <div>{{ product.description }}</div>
+        </div>
+    {% endif %}
+</div>
+
+{# Inventory Entries #}
+<div class="p-4">
+    <h6 class="fw-bold mb-3">
+        <i class="bi bi-list-ul me-2"></i>
+        Entrées d'inventaire ({{ product.inventoryEntries|length }})
+    </h6>
+
+    {% if product.inventoryEntries is empty %}
+        <div class="text-center text-muted py-4">
+            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+            <p class="mb-0 small">Aucune entrée d'inventaire</p>
+        </div>
+    {% else %}
+        <div class="list-group list-group-flush">
+            {% for entry in product.inventoryEntries|slice(0, 10) %}
+                <div class="list-group-item px-0">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <div class="fw-semibold">
+                                {{ entry.quantity }} {{ product.measurementUnit|default('unité') }}
+                            </div>
+                            <div class="small text-muted">
+                                <i class="bi bi-calendar3 me-1"></i>
+                                {{ entry.createdAt|date('d/m/Y à H:i') }}
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-semibold">{{ entry.price|number_format(2, '.', ' ') }} FCFA</div>
+                            <div class="small text-muted">
+                                Total: {{ entry.totalPrice|number_format(0, '.', ' ') }} FCFA
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if entry.notes %}
+                        <div class="small text-muted">
+                            <i class="bi bi-chat-left-text me-1"></i>
+                            {{ entry.notes }}
+                        </div>
+                    {% endif %}
+
+                    {% if entry.image %}
+                        <div class="mt-2">
+                            <img src="{{ entry.image }}" alt="Entry image" class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            {% if product.inventoryEntries|length > 10 %}
+                <div class="text-center py-2">
+                    <small class="text-muted">
+                        <i class="bi bi-three-dots"></i>
+                        {{ product.inventoryEntries|length - 10 }} entrée(s) supplémentaire(s)
+                    </small>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>

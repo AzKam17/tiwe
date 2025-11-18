@@ -97,6 +97,10 @@
                                         type="button"
                                         class="btn btn-outline-primary"
                                         title="Voir les détails"
+                                        data-bs-toggle="offcanvas"
+                                        data-bs-target="#productDetailsOffcanvas"
+                                        data-product-id="{{ product.id }}"
+                                        onclick="loadProductDetails({{ product.id }})"
                                     >
                                         <i class="bi bi-eye"></i>
                                     </button>
@@ -122,4 +126,59 @@
             {% endembed %}
         </div>
     </div>
+
+    {# Offcanvas for product details #}
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="productDetailsOffcanvas" aria-labelledby="productDetailsOffcanvasLabel" style="width: 500px;">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title" id="productDetailsOffcanvasLabel">
+                <i class="bi bi-info-circle me-2"></i>
+                Détails du produit
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <div id="productDetailsContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadProductDetails(productId) {
+            const contentDiv = document.getElementById('productDetailsContent');
+
+            // Show loading spinner
+            contentDiv.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                </div>
+            `;
+
+            // Fetch product details
+            fetch(`{{ path('app_auth_products_details', {id: '__ID__'}) }}`.replace('__ID__', productId))
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur lors du chargement');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    contentDiv.innerHTML = html;
+                })
+                .catch(error => {
+                    contentDiv.innerHTML = `
+                        <div class="alert alert-danger m-4">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Une erreur est survenue lors du chargement des détails.
+                        </div>
+                    `;
+                });
+        }
+    </script>
 {% endblock %}

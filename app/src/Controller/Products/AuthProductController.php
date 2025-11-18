@@ -105,4 +105,21 @@ class AuthProductController extends AbstractController
 
         return $this->redirectToRoute('app_auth_products_home', []);
     }
+
+    #[Route('/details/{id}', name: 'app_auth_products_details')]
+    public function details(
+        Product $product,
+        #[CurrentUser] User $user
+    ): Response
+    {
+        // Security check: ensure the product belongs to the current user
+        if ($product->getCreatedBy() !== $user) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $this->render('dashboard/products/_details.html.twig', [
+            'product' => $product,
+            'currentUser' => $user,
+        ]);
+    }
 }
