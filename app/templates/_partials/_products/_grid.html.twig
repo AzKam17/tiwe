@@ -84,10 +84,18 @@
                     </div>
 
                     {# View Details Button #}
-                    <a href="{{ path('app_product_show', {id: product.id}) }}" class="btn btn-outline-primary w-100">
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary w-100"
+                        data-bs-toggle="modal"
+                        data-bs-target="#inventoryModal"
+                        data-product-id="{{ product.id }}"
+                        data-product-title="{{ product.title }}"
+                        onclick="loadInventoryEntries({{ product.id }}, '{{ product.title|e('js') }}')"
+                    >
                         <i class="bi bi-eye me-1"></i>
                         Voir les détails
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -110,4 +118,326 @@
         transform: translateY(-5px);
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
     }
+    .inventory-entry-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .inventory-entry-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1) !important;
+    }
 </style>
+
+{# Inventory Entries Modal #}
+<div class="modal fade" id="inventoryModal" tabindex="-1" aria-labelledby="inventoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="inventoryModalLabel">
+                    <i class="bi bi-box-seam me-2"></i>
+                    <span id="modalProductTitle">Entrées d'inventaire</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                {# Filter Bar #}
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body py-2">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto">
+                                <small class="text-muted">
+                                    <i class="bi bi-funnel me-1"></i>
+                                    Trier par:
+                                </small>
+                            </div>
+                            <div class="col">
+                                <div class="btn-group btn-group-sm" role="group" id="sortButtons">
+                                    <input type="radio" class="btn-check" name="sortOption" id="sortRecent" value="recent" checked>
+                                    <label class="btn btn-outline-primary" for="sortRecent">
+                                        <i class="bi bi-clock-history me-1"></i>
+                                        Plus récent
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="sortOption" id="sortPriceAsc" value="price_asc">
+                                    <label class="btn btn-outline-primary" for="sortPriceAsc">
+                                        <i class="bi bi-arrow-up me-1"></i>
+                                        Prix croissant
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="sortOption" id="sortPriceDesc" value="price_desc">
+                                    <label class="btn btn-outline-primary" for="sortPriceDesc">
+                                        <i class="bi bi-arrow-down me-1"></i>
+                                        Prix décroissant
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <span class="badge bg-secondary" id="entryCount">0 entrée(s)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {# Loading Spinner #}
+                <div id="inventoryLoading" class="text-center py-5" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                    <p class="text-muted mt-3">Chargement des entrées...</p>
+                </div>
+
+                {# Error Message #}
+                <div id="inventoryError" class="alert alert-danger" style="display: none;">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <span id="inventoryErrorMessage">Une erreur est survenue.</span>
+                </div>
+
+                {# Inventory Entries List #}
+                <div id="inventoryEntriesList"></div>
+
+                {# Pagination #}
+                <div id="inventoryPagination" class="d-flex justify-content-center mt-4" style="display: none;"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentProductId = null;
+let currentProductTitle = '';
+let currentMeasurementUnit = 'unité';
+let currentPage = 1;
+let currentSort = 'recent';
+let paginationData = null;
+
+function loadInventoryEntries(productId, productTitle, sortBy = 'recent', page = 1) {
+    currentProductId = productId;
+    currentProductTitle = productTitle;
+    currentSort = sortBy;
+    currentPage = page;
+
+    // Update modal title
+    document.getElementById('modalProductTitle').textContent = productTitle;
+
+    // Show loading, hide error and content
+    document.getElementById('inventoryLoading').style.display = 'block';
+    document.getElementById('inventoryError').style.display = 'none';
+    document.getElementById('inventoryEntriesList').innerHTML = '';
+    document.getElementById('inventoryPagination').style.display = 'none';
+
+    // Build URL with sort and page parameters
+    const url = `{{ path('app_product_inventory_entries', {id: '__ID__'}) }}`.replace('__ID__', productId) + `?sort=${sortBy}&page=${page}`;
+
+    // Fetch inventory entries
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur lors du chargement');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Hide loading
+            document.getElementById('inventoryLoading').style.display = 'none';
+
+            // Update measurement unit
+            currentMeasurementUnit = data.product.measurementUnit || 'unité';
+
+            // Store pagination data
+            paginationData = data.pagination;
+
+            // Update entry count
+            document.getElementById('entryCount').textContent = `${data.pagination.totalEntries} entrée(s)`;
+
+            // Display entries and pagination
+            displayInventoryEntries(data.entries);
+            displayPagination(data.pagination);
+        })
+        .catch(error => {
+            // Hide loading, show error
+            document.getElementById('inventoryLoading').style.display = 'none';
+            document.getElementById('inventoryError').style.display = 'block';
+            document.getElementById('inventoryErrorMessage').textContent = error.message;
+        });
+}
+
+function displayInventoryEntries(entries) {
+    const container = document.getElementById('inventoryEntriesList');
+
+    if (entries.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
+                <h6 class="text-muted">Aucune entrée d'inventaire disponible</h6>
+                <p class="text-muted small">Ce produit n'a pas d'entrées en stock avec une quantité disponible.</p>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '<div class="row g-2">';
+
+    entries.forEach(entry => {
+        html += `
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+                <div class="card h-100 inventory-entry-card border">
+                    ${entry.image ? `
+                    <img
+                        src="${entry.image}"
+                        class="card-img-top"
+                        alt="Entrée #${entry.id}"
+                        style="height: 140px; object-fit: cover;"
+                    >
+                    ` : `
+                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 140px;">
+                        <i class="bi bi-box-seam text-muted" style="font-size: 2rem;"></i>
+                    </div>
+                    `}
+                    <div class="card-body p-2 d-flex flex-column" style="font-size: 0.85rem;">
+                        <div class="mb-1">
+                            <span class="badge bg-light text-dark border" style="font-size: 0.7rem;">
+                                <i class="bi bi-person me-1"></i>
+                                ${entry.user.name}
+                            </span>
+                        </div>
+
+                        <div class="mb-1">
+                            <small class="text-muted d-block" style="font-size: 0.7rem;">
+                                <i class="bi bi-box2-fill me-1"></i>
+                                Qté
+                            </small>
+                            <strong class="text-success" style="font-size: 0.8rem;">${entry.quantity} ${currentMeasurementUnit}</strong>
+                        </div>
+
+                        <div class="mb-1">
+                            <small class="text-muted d-block" style="font-size: 0.7rem;">
+                                <i class="bi bi-cash-coin me-1"></i>
+                                Prix
+                            </small>
+                            <strong style="font-size: 0.8rem;">${entry.price.toLocaleString('fr-FR', {minimumFractionDigits: 0})} FCFA</strong>
+                        </div>
+
+                        <div class="mb-2">
+                            <small class="text-muted d-block" style="font-size: 0.7rem;">
+                                <i class="bi bi-calculator me-1"></i>
+                                Total
+                            </small>
+                            <strong class="text-primary" style="font-size: 0.8rem;">${entry.totalPrice.toLocaleString('fr-FR', {minimumFractionDigits: 0})} FCFA</strong>
+                        </div>
+
+                        ${entry.notes ? `
+                        <div class="mb-2" style="max-height: 40px; overflow: hidden;">
+                            <small class="text-muted" style="font-size: 0.65rem;">${entry.notes}</small>
+                        </div>
+                        ` : ''}
+
+                        <div class="mt-auto">
+                            <button
+                                type="button"
+                                class="btn btn-primary btn-sm w-100"
+                                onclick="addToBasket(${entry.id}, ${entry.quantity}, ${entry.price})"
+                                style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"
+                            >
+                                <i class="bi bi-cart-plus me-1"></i>
+                                Panier
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function displayPagination(pagination) {
+    const container = document.getElementById('inventoryPagination');
+
+    if (pagination.totalPages <= 1) {
+        container.style.display = 'none';
+        return;
+    }
+
+    let html = '<nav><ul class="pagination">';
+
+    // Previous button
+    html += `
+        <li class="page-item ${!pagination.hasPreviousPage ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${pagination.currentPage - 1}); return false;">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+        </li>
+    `;
+
+    // Page numbers
+    for (let i = 1; i <= pagination.totalPages; i++) {
+        if (
+            i === 1 ||
+            i === pagination.totalPages ||
+            (i >= pagination.currentPage - 1 && i <= pagination.currentPage + 1)
+        ) {
+            html += `
+                <li class="page-item ${i === pagination.currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+                </li>
+            `;
+        } else if (i === pagination.currentPage - 2 || i === pagination.currentPage + 2) {
+            html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+        }
+    }
+
+    // Next button
+    html += `
+        <li class="page-item ${!pagination.hasNextPage ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${pagination.currentPage + 1}); return false;">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        </li>
+    `;
+
+    html += '</ul></nav>';
+    container.innerHTML = html;
+    container.style.display = 'flex';
+}
+
+function changePage(page) {
+    if (page < 1 || (paginationData && page > paginationData.totalPages)) {
+        return;
+    }
+    loadInventoryEntries(currentProductId, currentProductTitle, currentSort, page);
+}
+
+function addToBasket(entryId, quantity, price) {
+    // Placeholder function - will be implemented when cart functionality is added
+    alert(`Ajout au panier:\nEntrée #${entryId}\nQuantité: ${quantity}\nPrix: ${price} FCFA\n\nFonctionnalité à implémenter.`);
+    console.log('Add to basket:', { entryId, quantity, price });
+}
+
+// Add event listeners for filter buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const sortButtons = document.querySelectorAll('input[name="sortOption"]');
+    sortButtons.forEach(button => {
+        button.addEventListener('change', function() {
+            if (currentProductId && this.checked) {
+                loadInventoryEntries(currentProductId, currentProductTitle, this.value, 1);
+            }
+        });
+    });
+
+    // Reset filters when modal is closed
+    document.getElementById('inventoryModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('sortRecent').checked = true;
+        currentPage = 1;
+        currentSort = 'recent';
+    });
+});
+</script>
