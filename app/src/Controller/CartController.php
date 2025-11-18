@@ -32,33 +32,60 @@ final class CartController extends AbstractController
         #[CurrentUser] User $user,
         CartService $cartService,
         ProductRepository $productRepository,
+        InventoryEntryRepository $inventoryEntryRepository,
         EntityManagerInterface $entityManager,
     ): Response
     {
-
         $order = new Order();
         $order->setBuyer($user);
         $cart = $cartService->getCart();
 
         foreach ($cart as $item) {
-            /* @var Product | null $product */
-            $product = $productRepository->find($item['id']);
-            if(!$product) {
-                continue;
+            // Check if this is an inventory entry or old-style product cart item
+            if (isset($item['type']) && $item['type'] === 'inventory_entry') {
+                // New inventory entry system
+                $inventoryEntry = $inventoryEntryRepository->find($item['id']);
+                if (!$inventoryEntry) {
+                    continue;
+                }
+
+                $product = $inventoryEntry->getProduct();
+                $requestedQuantity = $item['quantity'];
+                $availableQuantity = $inventoryEntry->getQuantity();
+
+                // Don't allow ordering more than available
+                $quantity = min($requestedQuantity, $availableQuantity);
+
+                // Deduct from inventory entry
+                $inventoryEntry->setQuantity($availableQuantity - $quantity);
+                $entityManager->persist($inventoryEntry);
+
+                $orderItem = (new OrderItem())
+                    ->setPrice($item['price'])
+                    ->setProduct($product)
+                    ->setQuantity($quantity)
+                    ->setInventoryEntry($inventoryEntry);
+
+                $entityManager->persist($orderItem);
+                $order->addItem($orderItem);
+            } else {
+                // Legacy product-based cart system (for backward compatibility)
+                $product = $productRepository->find($item['id']);
+                if (!$product) {
+                    continue;
+                }
+
+                $quantity = $item['quantity'];
+                $price = $item['price'] ?? 0;
+
+                $orderItem = (new OrderItem())
+                    ->setPrice($price)
+                    ->setProduct($product)
+                    ->setQuantity($quantity);
+
+                $entityManager->persist($orderItem);
+                $order->addItem($orderItem);
             }
-
-            $quantity = min($item['quantity'], $product->getStock());
-
-            $product->setStock($product->getStock() - $quantity);
-
-            $orderItem = (new OrderItem())
-                ->setPrice($product->getPrice())
-                ->setProduct($product)
-                ->setQuantity($quantity);
-
-            $entityManager->persist($orderItem);
-
-            $order->addItem($orderItem);
         }
 
         $order->computeAmount();
@@ -69,7 +96,7 @@ final class CartController extends AbstractController
 
         $cartService->clearCart();
 
-        return $this->render('cart/index.html.twig');
+        return $this->redirectToRoute('app_cart_index');
     }
 
     #[Route('/add/{id}', name: 'app_cart_add')]

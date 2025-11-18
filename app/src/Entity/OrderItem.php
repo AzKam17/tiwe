@@ -33,6 +33,10 @@ class OrderItem
     #[ORM\Column]
     private ?float $price = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?InventoryEntry $inventoryEntry = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -93,6 +97,18 @@ class OrderItem
     public function setPrice(float $price): static
     {
         $this->price = $price;
+
+        return $this;
+    }
+
+    public function getInventoryEntry(): ?InventoryEntry
+    {
+        return $this->inventoryEntry;
+    }
+
+    public function setInventoryEntry(?InventoryEntry $inventoryEntry): static
+    {
+        $this->inventoryEntry = $inventoryEntry;
 
         return $this;
     }

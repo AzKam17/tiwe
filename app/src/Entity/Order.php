@@ -105,7 +105,10 @@ class Order
     public function computeAmount(): static
     {
         $total = array_reduce(
-            $this->items->toArray(), fn($sum, OrderItem $item) => $sum + ($item->getProduct()->getPrice() * $item->getQuantity()), 0);
+            $this->items->toArray(),
+            fn($sum, OrderItem $item) => $sum + ($item->getPrice() * $item->getQuantity()),
+            0
+        );
         $this->setAmount($total);
         return $this;
     }

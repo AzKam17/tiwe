@@ -22,7 +22,7 @@
                         {% endfor %}
 
                         <p class="fs-5">
-                            Total : <strong>{{ total }} €</strong>
+                            Total : <strong>{{ total|number_format(0, '.', ' ') }} FCFA</strong>
                         </p>
 
                         {% if app.user %}
@@ -54,21 +54,56 @@
                     {% else %}
                         <ul class="list-group">
                             {% for item in cart %}
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="https://picsum.photos/60/60?random={{ item.id|default(loop.index) }}"
-                                             alt="{{ item.title }}"
-                                             class="me-3 rounded">
-
-                                        <div>
-                                            <strong>{{ item.title }}</strong><br>
-                                            <small class="text-muted">{{ item.category|default('Sans catégorie') }}</small>
+                                <li class="list-group-item">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            {% if item.image %}
+                                                <img src="{{ item.image }}"
+                                                     alt="{{ item.productTitle is defined ? item.productTitle : item.title }}"
+                                                     class="rounded"
+                                                     style="width: 80px; height: 80px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                                     style="width: 80px; height: 80px;">
+                                                    <i class="bi bi-box-seam text-muted" style="font-size: 2rem;"></i>
+                                                </div>
+                                            {% endif %}
                                         </div>
-                                    </div>
 
-                                    <div class="text-end">
-                                        {{ item.quantity }} × {{ item.price }} € <br>
-                                        <strong>{{ item.quantity * item.price }} €</strong>
+                                        <div class="col">
+                                            <h6 class="mb-1">{{ item.productTitle is defined ? item.productTitle : item.title }}</h6>
+                                            {% if item.supplierName is defined %}
+                                                <small class="text-muted d-block">
+                                                    <i class="bi bi-person me-1"></i>
+                                                    Fournisseur: {{ item.supplierName }}
+                                                </small>
+                                            {% endif %}
+                                            {% if item.category is defined %}
+                                                <small class="text-muted">{{ item.category }}</small>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="col-auto text-end">
+                                            <div class="mb-1">
+                                                <small class="text-muted d-block">Quantité</small>
+                                                <strong>{{ item.quantity }} {{ item.measurementUnit|default('unité') }}</strong>
+                                            </div>
+                                            <div class="mb-1">
+                                                <small class="text-muted d-block">Prix unitaire</small>
+                                                <strong>{{ item.price|number_format(0, '.', ' ') }} FCFA</strong>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted d-block">Total</small>
+                                                <strong class="text-primary fs-5">{{ (item.quantity * item.price)|number_format(0, '.', ' ') }} FCFA</strong>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-auto">
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    onclick="removeFromCart({{ item.id }})">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </li>
                             {% endfor %}
@@ -78,4 +113,32 @@
             </div>
         </div>
     </div>
+
+    <script>
+    function removeFromCart(itemId) {
+        if (!confirm('Voulez-vous vraiment supprimer cet article du panier?')) {
+            return;
+        }
+
+        fetch(`{{ path('app_cart_remove', {id: '__ID__'}) }}`.replace('__ID__', itemId), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload the page to reflect changes
+                window.location.reload();
+            } else {
+                alert('Erreur lors de la suppression');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erreur lors de la suppression');
+        });
+    }
+    </script>
 {% endblock %}

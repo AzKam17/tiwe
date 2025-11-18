@@ -6,11 +6,9 @@ namespace App\Controller\Orders;
 
 use App\Entity\Order;
 use App\Entity\OrderItem;
-use App\Entity\Product;
 use App\Entity\User;
 use App\Enum\OrderItemEnum;
 use App\Repository\OrderRepository;
-use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,20 +29,20 @@ class AuthOrdersController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_auth_orders_details')]
-    public function details(Order $order, #[CurrentUser] User $user, ProductRepository $productRepository): Response
+    public function details(Order $order, #[CurrentUser] User $user): Response
     {
         $itemsToKeep = [];
         $orderItems = $order->getItems();
 
-        $buyersProductsId = array_map(function (Product $product) {
-            return $product->getId();
-        }, $productRepository->getOrderProducts($order, $user));
+        // Filter items to only show those from the current seller's inventory
+        foreach ($orderItems as $item) {
+            $inventoryEntry = $item->getInventoryEntry();
 
-        array_map(function (OrderItem $item) use ($buyersProductsId, &$itemsToKeep)  {
-            if (in_array($item->getProduct()->getId(), $buyersProductsId, true)) {
+            // Only include items where the inventory entry belongs to the current user
+            if ($inventoryEntry && $inventoryEntry->getUser()->getId() === $user->getId()) {
                 $itemsToKeep[] = $item;
             }
-        }, $orderItems->toArray());
+        }
 
         $order
             ->emptyItems()
@@ -59,20 +57,48 @@ class AuthOrdersController extends AbstractController
     }
 
 
+    #[Route('/{id}/api', name: 'app_auth_orders_details_api')]
+    public function detailsApi(Order $order, #[CurrentUser] User $user): Response
+    {
+        $itemsToKeep = [];
+        $orderItems = $order->getItems();
+
+        // Filter items to only show those from the current seller's inventory
+        foreach ($orderItems as $item) {
+            $inventoryEntry = $item->getInventoryEntry();
+
+            // Only include items where the inventory entry belongs to the current user
+            if ($inventoryEntry && $inventoryEntry->getUser()->getId() === $user->getId()) {
+                $itemsToKeep[] = $item;
+            }
+        }
+
+        $order
+            ->emptyItems()
+            ->addItems($itemsToKeep)
+            ->computeAmount()
+            ->computeTotalAmount()
+        ;
+
+        return $this->render('dashboard/orders/_order_details_content.html.twig', [
+            'order' => $order,
+        ]);
+    }
+
     #[Route('/{id}/{status}', name: 'app_order_update_status')]
-    public function updateStatus(Order $order, $status, #[CurrentUser] User $user, ProductRepository $productRepository, EntityManagerInterface $em): Response
+    public function updateStatus(Order $order, $status, #[CurrentUser] User $user, EntityManagerInterface $em): Response
     {
         $orderStatus = OrderItemEnum::tryFrom($status);
         if (!$orderStatus) {
             throw $this->createNotFoundException();
         }
 
-        $sellerProductsId = array_map(function (Product $product) {
-            return $product->getId();
-        }, $productRepository->getOrderProducts($order, $user));
-
+        // Update status only for items from the current seller's inventory
         foreach ($order->getItems() as $item) {
-            if (in_array($item->getProduct()->getId(), $sellerProductsId, true)) {
+            $inventoryEntry = $item->getInventoryEntry();
+
+            // Only update items where the inventory entry belongs to the current user
+            if ($inventoryEntry && $inventoryEntry->getUser()->getId() === $user->getId()) {
                 $item->setStatus($orderStatus);
                 $em->persist($item);
             }

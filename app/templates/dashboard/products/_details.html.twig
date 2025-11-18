@@ -37,7 +37,7 @@
         Statistiques d'inventaire
     </h6>
 
-    <div class="row g-3">
+    {#<div class="row g-3">
         <div class="col-6">
             <div class="card bg-light border-0">
                 <div class="card-body text-center p-3">
@@ -62,15 +62,23 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>#}
 
         <div class="col-12">
             <div class="card bg-light border-0">
                 <div class="card-body text-center p-3">
-                    <div class="text-muted small mb-1">Prix unitaire récent</div>
+                    <div class="text-muted small mb-1">
+                        <i class="bi bi-graph-up-arrow me-1"></i>
+                        Prix moyen
+                    </div>
                     <div class="fs-4 fw-bold">
-                        {% if product.latestPrice %}
-                            {{ product.latestPrice|number_format(2, '.', ' ') }}
+                        {% if inventoryEntries is defined and inventoryEntries|length > 0 %}
+                            {% set totalPrice = 0 %}
+                            {% for entry in inventoryEntries %}
+                                {% set totalPrice = totalPrice + entry.price %}
+                            {% endfor %}
+                            {% set averagePrice = totalPrice / inventoryEntries|length %}
+                            {{ averagePrice|number_format(0, '.', ' ') }}
                             <small class="fs-6 text-muted">FCFA{% if product.measurementUnit %}/{{ product.measurementUnit }}{% endif %}</small>
                         {% else %}
                             <span class="text-muted">—</span>
@@ -115,14 +123,14 @@
         Entrées d'inventaire ({{ product.inventoryEntries|length }})
     </h6>
 
-    {% if product.inventoryEntries is empty %}
+    {% if inventoryEntries is empty %}
         <div class="text-center text-muted py-4">
             <i class="bi bi-inbox fs-2 d-block mb-2"></i>
             <p class="mb-0 small">Aucune entrée d'inventaire</p>
         </div>
     {% else %}
         <div class="list-group list-group-flush">
-            {% for entry in product.inventoryEntries|slice(0, 10) %}
+            {% for entry in inventoryEntries|slice(0, 10) %}
                 <div class="list-group-item px-0">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <div>
@@ -157,11 +165,11 @@
                 </div>
             {% endfor %}
 
-            {% if product.inventoryEntries|length > 10 %}
+            {% if inventoryEntries|length > 10 %}
                 <div class="text-center py-2">
                     <small class="text-muted">
                         <i class="bi bi-three-dots"></i>
-                        {{ product.inventoryEntries|length - 10 }} entrée(s) supplémentaire(s)
+                        {{ inventoryEntries|length - 10 }} entrée(s) supplémentaire(s)
                     </small>
                 </div>
             {% endif %}

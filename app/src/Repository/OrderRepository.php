@@ -36,7 +36,7 @@ class OrderRepository extends ServiceEntityRepository
     }
 
     /**
-     * Get all orders that include at least one product from a specific seller (store).
+     * Get all orders that include at least one inventory entry from a specific seller.
      *
      * @param User $user The seller whose orders should be retrieved.
      * @param int|null $limit Optional limit on the number of results.
@@ -47,9 +47,8 @@ class OrderRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('o')
             ->distinct()
             ->innerJoin('o.items', 'oi')
-            ->innerJoin('oi.product', 'p')
-            ->innerJoin('p.createdBy', 'seller')
-            ->andWhere('seller = :user')
+            ->innerJoin('oi.inventoryEntry', 'ie')
+            ->andWhere('ie.user = :user')
             ->setParameter('user', $user)
             ->orderBy('o.createdAt', 'DESC');
 
@@ -60,23 +59,16 @@ class OrderRepository extends ServiceEntityRepository
         $orders = $qb->getQuery()->getResult();
 
         foreach ($orders as $order) {
-            $itemsToKeep = [];
-
-            $sellersProducts = array_map(
-                fn($item) => $item->getProduct()->getId(),
-                array_filter(
-                    $order->getItems()->toArray(),
-                    fn($item) => $item->getProduct()->getCreatedBy() === $user
-                )
-            );
-
+            // Filter items to only show those from the current seller's inventory
             $itemsToKeep = array_filter(
                 $order->getItems()->toArray(),
-                fn($item) => in_array($item->getProduct()->getId(), $sellersProducts, true)
+                function($item) use ($user) {
+                    $inventoryEntry = $item->getInventoryEntry();
+                    return $inventoryEntry && $inventoryEntry->getUser()->getId() === $user->getId();
+                }
             );
 
             $order->emptyItems()->addItems($itemsToKeep);
-
             $order->computeAmount()->computeTotalAmount();
         }
 

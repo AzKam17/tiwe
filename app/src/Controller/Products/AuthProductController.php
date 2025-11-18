@@ -7,6 +7,7 @@ namespace App\Controller\Products;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Form\NewProductType;
+use App\Repository\InventoryEntryRepository;
 use App\Repository\ProductCategoryRepository;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,7 +35,7 @@ class AuthProductController extends AbstractController
         $query = $repository->createQueryBuilder('p')
             ->leftJoin('p.inventoryEntries', 'ie')
             ->addSelect('ie')
-            ->where('p.createdBy = :user')
+            ->where('ie.user = :user')
             ->setParameter('user', $user)
             ->orderBy('p.id', 'DESC')
             ->getQuery();
@@ -109,17 +110,24 @@ class AuthProductController extends AbstractController
     #[Route('/details/{id}', name: 'app_auth_products_details')]
     public function details(
         Product $product,
-        #[CurrentUser] User $user
+        #[CurrentUser] User $user,
+        InventoryEntryRepository $inventoryEntryRepository
     ): Response
     {
-        // Security check: ensure the product belongs to the current user
-        if ($product->getCreatedBy() !== $user) {
-            throw $this->createAccessDeniedException();
-        }
+        // Get only the current user's inventory entries for this product
+        $userInventoryEntries = $inventoryEntryRepository->createQueryBuilder('ie')
+            ->where('ie.product = :product')
+            ->andWhere('ie.user = :user')
+            ->setParameter('product', $product)
+            ->setParameter('user', $user)
+            ->orderBy('ie.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
 
         return $this->render('dashboard/products/_details.html.twig', [
             'product' => $product,
             'currentUser' => $user,
+            'inventoryEntries' => $userInventoryEntries,
         ]);
     }
 }

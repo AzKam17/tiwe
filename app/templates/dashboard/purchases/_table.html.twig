@@ -1,56 +1,156 @@
 {% if orders|length > 0 %}
-    <div class="card shadow-sm rounded">
-        <div class="card-header fw-bold d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-basket3 me-1"></i> Mes commandes</span>
-            <span class="badge bg-primary rounded-pill">{{ orders|length }}</span>
-        </div>
-
+    <div class="card shadow-sm">
         <div class="card-body p-0">
-            <table class="table mb-0 table-outer-border">
-                <thead class="bg-light">
-                <tr>
-                    <th><i class="bi bi-hash me-1"></i>ID</th>
-                    <th><i class="bi bi-calendar-event me-1"></i> Date</th>
-                    <th><i class="bi bi-info-circle me-1"></i> Status</th>
-                    <th class="text-end"><i class="bi bi-currency-euro me-1"></i> Montant</th>
-                    <th class="text-end"><i class="bi bi-coin me-1"></i> Frais</th>
-                    <th class="text-end"><i class="bi bi-basket me-1"></i> Total</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for order in orders %}
-                    <tr>
-                        <td>
-                            <a class="text-muted" href="{{ path('app_auth_purchases_details', {id: order.id}) }}">
-                                <strong>#{{ order.slug }}</strong>
-                            </a>
-                        </td>
-                        <td><i class="bi bi-calendar3 me-1"></i> {{ order.createdAt|date('d/m/Y H:i') }}</td>
-                        <td>
-                            <span class="badge rounded-pill {{ order.status|order_status_badge }}">
-                                <i class="bi {{ order.status.name|status_icon }}"></i>
-                                {{ order.status | order_status_lib }}
-                            </span>
-                        </td>
-                        <td class="text-end">{{ order.amount|number_format(2, ',', ' ') }} €</td>
-                        <td class="text-end">{{ order.fees|number_format(2, ',', ' ') }} €</td>
-                        <td class="text-end"><strong>{{ order.totalAmount|number_format(2, ',', ' ') }} €</strong></td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+            {% embed '_partials/_table.html.twig' with {
+                'headers': [
+                    {'label': 'Commande', 'icon': 'hash'},
+                    {'label': 'Date', 'icon': 'calendar-event'},
+                    {'label': 'Articles', 'icon': 'box-seam', 'align': 'center'},
+                    {'label': 'Statut', 'icon': 'info-circle', 'align': 'center'},
+                    {'label': 'Montant', 'icon': 'currency-dollar', 'align': 'end'},
+                    {'label': 'Frais', 'icon': 'coin', 'align': 'end'},
+                    {'label': 'Total', 'icon': 'basket', 'align': 'end'},
+                    {'label': 'Actions', 'icon': 'gear', 'align': 'center'}
+                ],
+                'rows': orders,
+                'empty_message': 'Aucune commande pour le moment'
+            } %}
+                {% block table_content %}
+                    {% for order in orders %}
+                        <tr>
+                            <td class="text-start align-middle">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 rounded p-2 me-2">
+                                        <i class="bi bi-receipt text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <strong class="d-block">#{{ order.slug }}</strong>
+                                        <small class="text-muted">{{ order.id|slice(0, 8) }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-start align-middle">
+                                <div>
+                                    <strong class="d-block">{{ order.createdAt|date('d/m/Y') }}</strong>
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock me-1"></i>
+                                        {{ order.createdAt|date('H:i') }}
+                                    </small>
+                                </div>
+                            </td>
+                            <td class="text-center align-middle">
+                                <span class="badge bg-secondary rounded-pill">
+                                    {{ order.items|length }}
+                                </span>
+                            </td>
+                            <td class="text-center align-middle">
+                                <span class="badge rounded-pill {{ order.status|order_status_badge }}">
+                                    <i class="bi {{ order.status.name|status_icon }} me-1"></i>
+                                    {{ order.status|order_status_lib }}
+                                </span>
+                            </td>
+                            <td class="text-end align-middle">
+                                <strong>{{ order.amount|number_format(0, '.', ' ') }}</strong>
+                                <small class="text-muted d-block">FCFA</small>
+                            </td>
+                            <td class="text-end align-middle">
+                                <strong>{{ order.fees|number_format(0, '.', ' ') }}</strong>
+                                <small class="text-muted d-block">FCFA</small>
+                            </td>
+                            <td class="text-end align-middle">
+                                <strong class="text-primary">{{ order.totalAmount|number_format(0, '.', ' ') }}</strong>
+                                <small class="text-muted d-block">FCFA</small>
+                            </td>
+                            <td class="text-center align-middle">
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-primary"
+                                    title="Voir les articles"
+                                    data-bs-toggle="offcanvas"
+                                    data-bs-target="#orderDetailsOffcanvas"
+                                    onclick="loadOrderDetails('{{ order.id }}', '{{ order.slug }}')"
+                                >
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endblock %}
+            {% endembed %}
         </div>
     </div>
+
+    {# Offcanvas for order details #}
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="orderDetailsOffcanvas" aria-labelledby="orderDetailsOffcanvasLabel" style="width: 600px;">
+        <div class="offcanvas-header border-bottom bg-primary text-white">
+            <h5 class="offcanvas-title" id="orderDetailsOffcanvasLabel">
+                <i class="bi bi-receipt me-2"></i>
+                <span id="orderTitle">Détails de la commande</span>
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <div id="orderDetailsContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadOrderDetails(orderId, slug) {
+            const contentDiv = document.getElementById('orderDetailsContent');
+            const titleSpan = document.getElementById('orderTitle');
+
+            // Update title
+            titleSpan.textContent = `Commande #${slug}`;
+
+            // Show loading spinner
+            contentDiv.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                    <p class="text-muted mt-3">Chargement des détails...</p>
+                </div>
+            `;
+
+            // Fetch order details
+            fetch(`{{ path('app_auth_purchases_details_api', {id: '__ID__'}) }}`.replace('__ID__', orderId))
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur lors du chargement');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    contentDiv.innerHTML = html;
+                })
+                .catch(error => {
+                    contentDiv.innerHTML = `
+                        <div class="alert alert-danger m-4">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Une erreur est survenue lors du chargement des détails.
+                        </div>
+                    `;
+                    console.error('Error loading order details:', error);
+                });
+        }
+    </script>
 {% else %}
-    <div class="card text-center shadow-sm p-3 rounded" style="max-width: 400px; margin: 0 auto;">
+    <div class="card text-center shadow-sm p-5">
         <div class="card-body">
-            <i class="bi bi-cart-x fs-2 mb-2"></i>
-            <h6 class="card-title mb-2">Aucune commande pour le moment</h6>
-            <p class="card-text text-muted mb-3 small">
-                Vous n'avez encore passé aucune commande. Explorez les offres et faites vos premiers achats !
+            <i class="bi bi-cart-x display-1 text-muted mb-3"></i>
+            <h4 class="card-title mb-2">Aucune commande</h4>
+            <p class="card-text text-muted mb-4">
+                Vous n'avez encore passé aucune commande. Explorez nos produits et faites vos premiers achats !
             </p>
-            <a href="#" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1 justify-content-center">
-                <i class="bi bi-bag-plus"></i> Commencer à commander
+            <a href="{{ path('app_home') }}" class="btn btn-primary">
+                <i class="bi bi-bag-plus me-2"></i>
+                Commencer à commander
             </a>
         </div>
     </div>

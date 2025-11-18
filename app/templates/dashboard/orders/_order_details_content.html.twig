@@ -1,0 +1,163 @@
+{# Order & Client Summary Section #}
+<div class="bg-light p-3 border-bottom">
+    <div class="row g-3">
+        <div class="col-6">
+            <small class="text-muted d-block">
+                <i class="bi bi-calendar3 me-1"></i>
+                Date de commande
+            </small>
+            <strong>{{ order.createdAt|date('d/m/Y à H:i') }}</strong>
+        </div>
+        <div class="col-6">
+            <small class="text-muted d-block">
+                <i class="bi bi-info-circle me-1"></i>
+                Statut
+            </small>
+            <span class="badge {{ order.status|order_status_badge }}">
+                <i class="bi {{ order.status.name|status_icon }} me-1"></i>
+                {{ order.status|order_status_lib }}
+            </span>
+        </div>
+        <div class="col-12">
+            <hr class="my-2">
+            <small class="text-muted d-block mb-1">
+                <i class="bi bi-person-fill me-1"></i>
+                Client
+            </small>
+            <div class="d-flex align-items-center">
+                <div class="bg-info bg-opacity-10 rounded-circle p-2 me-2" style="width: 40px; height: 40px;">
+                    <i class="bi bi-person-fill text-info"></i>
+                </div>
+                <div>
+                    <strong class="d-block">{{ order.buyer.firstName }} {{ order.buyer.lastName }}</strong>
+                    <small class="text-muted">{{ order.buyer.email }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Order Items Section #}
+<div class="p-3">
+    <h6 class="mb-3">
+        <i class="bi bi-box-seam me-2"></i>
+        Vos articles vendus ({{ order.items|length }})
+    </h6>
+
+    <div class="list-group list-group-flush">
+        {% for item in order.items %}
+            <div class="list-group-item px-0 border-bottom">
+                <div class="row align-items-center g-3">
+                    <div class="col-auto">
+                        {% set displayImage = item.product.getDisplayImageForUser(app.user) %}
+                        {% if displayImage %}
+                            <img
+                                src="{{ displayImage }}"
+                                alt="{{ item.product.title }}"
+                                class="rounded"
+                                style="width: 70px; height: 70px; object-fit: cover;"
+                            >
+                        {% else %}
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center border"
+                                 style="width: 70px; height: 70px;">
+                                <i class="bi bi-box-seam text-muted fs-4"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col">
+                        <h6 class="mb-1">{{ item.product.title }}</h6>
+                        <div class="row g-2 small">
+                            <div class="col-6">
+                                <small class="text-muted d-block">
+                                    <i class="bi bi-box2-fill me-1"></i>
+                                    Quantité vendue
+                                </small>
+                                <strong class="text-success">{{ item.quantity }} {{ item.product.measurementUnit|default('unité') }}</strong>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">
+                                    <i class="bi bi-cash-coin me-1"></i>
+                                    Prix unitaire
+                                </small>
+                                <strong>{{ item.price|number_format(0, '.', ' ') }} FCFA</strong>
+                            </div>
+                        </div>
+                        {% if item.product.category %}
+                            <div class="mt-2">
+                                <span class="badge bg-secondary small">
+                                    {{ item.product.category.title }}
+                                </span>
+                            </div>
+                        {% endif %}
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Statut:
+                                <span class="badge badge-sm {{ item.status.name == 'DELIVERED' ? 'bg-success' : (item.status.name == 'CANCELED' ? 'bg-danger' : 'bg-warning') }}">
+                                    {{ item.status.value }}
+                                </span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-auto text-end">
+                        <small class="text-muted d-block">Revenu</small>
+                        <strong class="text-success fs-5">{{ (item.price * item.quantity)|number_format(0, '.', ' ') }}</strong>
+                        <small class="text-muted d-block">FCFA</small>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{# Order Totals Section #}
+<div class="p-3 bg-light border-top mt-3">
+    <div class="row g-2 mb-2">
+        <div class="col-6">
+            <strong>Montant total:</strong>
+        </div>
+        <div class="col-6 text-end">
+            <strong>{{ order.amount|number_format(0, '.', ' ') }} FCFA</strong>
+        </div>
+    </div>
+    <div class="row g-2 mb-3">
+        <div class="col-6">
+            <strong>Frais de service:</strong>
+        </div>
+        <div class="col-6 text-end">
+            <strong>{{ order.fees|number_format(0, '.', ' ') }} FCFA</strong>
+        </div>
+    </div>
+    <hr class="my-2">
+    <div class="row g-2">
+        <div class="col-6">
+            <h5 class="mb-0">
+                <i class="bi bi-cash-stack me-2"></i>
+                Revenu total:
+            </h5>
+        </div>
+        <div class="col-6 text-end">
+            <h4 class="mb-0 text-success">{{ order.totalAmount|number_format(0, '.', ' ') }} FCFA</h4>
+        </div>
+    </div>
+</div>
+
+{# Additional Info Section #}
+<div class="p-3 border-top">
+    <div class="row g-2">
+        <div class="col-12">
+            <small class="text-muted">
+                <i class="bi bi-info-circle me-1"></i>
+                Commande passée le {{ order.createdAt|date('d/m/Y à H:i') }}
+            </small>
+        </div>
+        {% if order.updatedAt %}
+            <div class="col-12">
+                <small class="text-muted">
+                    <i class="bi bi-arrow-repeat me-1"></i>
+                    Dernière mise à jour: {{ order.updatedAt|date('d/m/Y à H:i') }}
+                </small>
+            </div>
+        {% endif %}
+    </div>
+</div>

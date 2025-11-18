@@ -43,4 +43,20 @@ class AuthPurchasesController extends AbstractController
             'order' => $order
         ]);
     }
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/{id}/api', name: 'app_auth_purchases_details_api')]
+    public function detailsApi(
+        Order $order,
+        #[CurrentUser] User $user,
+    ): Response
+    {
+        if ($order->getBuyer()->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException('You do not have access to this order.');
+        }
+
+        return $this->render('dashboard/purchases/_order_details_content.html.twig', [
+            'order' => $order
+        ]);
+    }
 }
