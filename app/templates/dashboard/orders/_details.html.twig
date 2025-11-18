@@ -76,8 +76,8 @@
                         </div>
 
                         <div class="text-end">
-                            <div>Prix: {{ item.product.price|number_format(2, ',', ' ') }} €</div>
-                            <div class="fw-bold">Total: {{ (item.product.price * item.quantity)|number_format(2, ',', ' ') }} €</div>
+                            <div>Prix: {{ item.price|number_format(0, '.', ' ') }} FCFA</div>
+                            <div class="fw-bold">Total: {{ (item.price * item.quantity)|number_format(0, '.', ' ') }} FCFA</div>
                         </div>
                     </div>
                 {% endfor %}
@@ -91,7 +91,7 @@
 
     <!-- Footer -->
     <div class="card-footer text-end bg-light border-top">
-        <strong>Total commande: {{ order.totalAmount|number_format(2, ',', ' ') }} €</strong>
+        <strong>Total commande: {{ order.totalAmount|number_format(0, '.', ' ') }} FCFA</strong>
     </div>
 </div>
 

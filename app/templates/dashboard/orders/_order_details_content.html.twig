@@ -105,6 +105,52 @@
                         <small class="text-muted d-block">FCFA</small>
                     </div>
                 </div>
+
+                {# Status Update Actions #}
+                {% if item.status.name != 'DELIVERED' and item.status.name != 'CANCELED' %}
+                    <div class="mt-3 pt-3 border-top">
+                        <small class="text-muted d-block mb-2">
+                            <i class="bi bi-arrow-repeat me-1"></i>
+                            Mettre à jour le statut
+                        </small>
+                        <div class="d-flex gap-2 flex-wrap">
+                            {% if item.status.name == 'PENDING' %}
+                                <a href="{{ path('app_order_update_status', {id: order.id, status: 'CONFIRMED'}) }}"
+                                   class="btn btn-sm btn-outline-primary"
+                                   onclick="return confirm('Mettre cette commande en traitement?')">
+                                    <i class="bi bi-gear me-1"></i>
+                                    En traitement
+                                </a>
+                            {% endif %}
+
+                            {% if item.status.name == 'CONFIRMED' %}
+                                <a href="{{ path('app_order_update_status', {id: order.id, status: 'SHIPPED'}) }}"
+                                   class="btn btn-sm btn-outline-primary"
+                                   onclick="return confirm('Marquer comme expédié?')">
+                                    <i class="bi bi-truck me-1"></i>
+                                    Expédié
+                                </a>
+                            {% endif %}
+
+                            {% if item.status.name == 'SHIPPED' %}
+                                <a href="{{ path('app_order_update_status', {id: order.id, status: 'DELIVERED'}) }}"
+                                   class="btn btn-sm btn-outline-success"
+                                   onclick="return confirm('Marquer comme livré?')">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Livré
+                                </a>
+                            {% endif %}
+
+                            {# Cancel button - available for all non-final statuses #}
+                            <a href="{{ path('app_order_update_status', {id: order.id, status: 'CANCELED'}) }}"
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Êtes-vous sûr de vouloir annuler cette commande?')">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Annulé
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         {% endfor %}
     </div>
