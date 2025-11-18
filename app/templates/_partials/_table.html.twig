@@ -1,0 +1,57 @@
+{#
+    Reusable table component
+
+    Parameters:
+    - headers: Array of headers objects with 'label', 'icon', 'align' (optional, default 'left')
+    - rows: Array of row data
+    - pagination: Pagination object (optional)
+    - empty_message: Message to display when no data (optional)
+
+    Example usage:
+    {% include '_partials/_table.html.twig' with {
+        'headers': [
+            {'label': 'Produit', 'icon': 'box-seam'},
+            {'label': 'Catégorie', 'icon': 'tag'},
+            {'label': 'Prix', 'icon': 'cash-coin', 'align': 'right'},
+            {'label': 'Actions', 'icon': 'gear', 'align': 'center'}
+        ],
+        'rows': rows_data,
+        'pagination': pagination,
+        'empty_message': 'Aucun produit trouvé'
+    } %}
+#}
+
+<div class="table-responsive">
+    <table class="table table-hover mb-0">
+        <thead style="background-color: #f8f9fa;">
+            <tr>
+                {% for header in headers %}
+                    <th scope="col" class="text-{{ header.align|default('start') }} py-3">
+                        {% if header.icon is defined %}
+                            <i class="bi bi-{{ header.icon }} me-2"></i>
+                        {% endif %}
+                        {{ header.label }}
+                    </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% if rows is empty %}
+                <tr>
+                    <td colspan="{{ headers|length }}" class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        {{ empty_message|default('Aucune donnée disponible') }}
+                    </td>
+                </tr>
+            {% else %}
+                {{ block('table_content') }}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% if pagination is defined and pagination.getTotalItemCount > 0 %}
+    <div class="d-flex justify-content-center mt-4">
+        {{ knp_pagination_render(pagination) }}
+    </div>
+{% endif %}

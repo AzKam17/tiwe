@@ -10,6 +10,7 @@ use App\Form\NewProductType;
 use App\Repository\ProductCategoryRepository;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,12 +23,32 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class AuthProductController extends AbstractController
 {
     #[Route('/', name: 'app_auth_products_home')]
-    public function products(#[CurrentUser] User $user, ProductRepository $repository, ProductCategoryRepository $productCategoryRepository): Response
+    public function products(
+        #[CurrentUser] User $user,
+        ProductRepository $repository,
+        ProductCategoryRepository $productCategoryRepository,
+        PaginatorInterface $paginator,
+        Request $request
+    ): Response
     {
-        $products = $repository->findBy(['createdBy' => $user], []);
+        $query = $repository->createQueryBuilder('p')
+            ->leftJoin('p.inventoryEntries', 'ie')
+            ->addSelect('ie')
+            ->where('p.createdBy = :user')
+            ->setParameter('user', $user)
+            ->orderBy('p.id', 'DESC')
+            ->getQuery();
+
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            6 // Items per page
+        );
+
         return $this->render('dashboard/products.html.twig', [
-            'products' => $products,
+            'products' => $pagination,
             'categories' => $productCategoryRepository->findAll(),
+            'currentUser' => $user,
         ]);
     }
 

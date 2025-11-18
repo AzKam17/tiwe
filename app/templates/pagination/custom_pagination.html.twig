@@ -1,0 +1,98 @@
+{# Custom Bootstrap 5 pagination template with French text and primary colors #}
+
+{% if pageCount > 1 %}
+<nav aria-label="Navigation de pagination">
+    <ul class="pagination justify-content-center mb-0">
+        {% if previous is defined %}
+            <li class="page-item">
+                <a class="page-link btn-primary text-white" href="{{ path(route, query|merge({(pageParameterName): previous})) }}" rel="prev">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="visually-hidden">Précédent</span>
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="visually-hidden">Précédent</span>
+                </span>
+            </li>
+        {% endif %}
+
+        {% if startPage > 1 %}
+            <li class="page-item">
+                <a class="page-link btn-primary text-white" href="{{ path(route, query|merge({(pageParameterName): 1})) }}">1</a>
+            </li>
+            {% if startPage == 3 %}
+                <li class="page-item">
+                    <a class="page-link btn-primary text-white" href="{{ path(route, query|merge({(pageParameterName): 2})) }}">2</a>
+                </li>
+            {% elseif startPage != 2 %}
+                <li class="page-item disabled">
+                    <span class="page-link">&hellip;</span>
+                </li>
+            {% endif %}
+        {% endif %}
+
+        {% for page in pagesInRange %}
+            {% if page != current %}
+                <li class="page-item">
+                    <a class="page-link btn-primary text-white" href="{{ path(route, query|merge({(pageParameterName): page})) }}">{{ page }}</a>
+                </li>
+            {% else %}
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link bg-primary border-primary">{{ page }}</span>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if pageCount > endPage %}
+            {% if pageCount > (endPage + 1) %}
+                {% if pageCount > (endPage + 2) %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&hellip;</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link btn-primary text-white" href="{{ path(route, query|merge({(pageParameterName): (pageCount - 1)})) }}">{{ pageCount - 1 }}</a>
+                    </li>
+                {% endif %}
+            {% endif %}
+            <li class="page-item">
+                <a class="page-link btn-primary text-white" href="{{ path(route, query|merge({(pageParameterName): pageCount})) }}">{{ pageCount }}</a>
+            </li>
+        {% endif %}
+
+        {% if next is defined %}
+            <li class="page-item">
+                <a class="page-link btn-primary text-white" href="{{ path(route, query|merge({(pageParameterName): next})) }}" rel="next">
+                    <span class="visually-hidden">Suivant</span>
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">
+                    <span class="visually-hidden">Suivant</span>
+                    <span aria-hidden="true">&raquo;</span>
+                </span>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+
+<style>
+    .pagination .page-link.btn-primary {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+    }
+    .pagination .page-link.btn-primary:hover {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+        opacity: 0.85;
+    }
+    .pagination .page-item.active .page-link {
+        font-weight: bold;
+    }
+</style>
+{% endif %}

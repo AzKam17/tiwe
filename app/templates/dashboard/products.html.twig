@@ -11,9 +11,115 @@
         </a>
     </div>
 
-    <p>Visualisez et gérez vos récoltes et vos outils agricoles disponibles à la vente pour vos clients professionnels ou partenaires.</p>
+    <p class="text-muted mb-4">Visualisez et gérez vos récoltes et vos outils agricoles disponibles à la vente pour vos clients professionnels ou partenaires.</p>
 
     {% include '_partials/_flashes.html.twig' %}
 
-    {#  {% include 'dashboard/products/_table.html.twig' with {'products': products} %} #}
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            {% embed '_partials/_table.html.twig' with {
+                'headers': [
+                    {'label': 'Produit', 'icon': 'box-seam'},
+                    {'label': 'Catégorie', 'icon': 'tag'},
+                    {'label': 'Quantité', 'icon': 'box2-fill', 'align': 'end'},
+                    {'label': 'Prix unitaire', 'icon': 'cash-coin', 'align': 'end'},
+                    {'label': 'Valeur totale', 'icon': 'calculator', 'align': 'end'},
+                    {'label': 'Actions', 'icon': 'gear', 'align': 'center'}
+                ],
+                'rows': products,
+                'pagination': products,
+                'empty_message': 'Aucun produit dans votre inventaire. Commencez par enregistrer une entrée.'
+            } %}
+                {% block table_content %}
+                    {% for product in products %}
+                        <tr>
+                            <td class="text-start align-middle">
+                                <div class="d-flex align-items-center">
+                                    {% set displayImage = product.getDisplayImageForUser(currentUser) %}
+                                    {% if displayImage %}
+                                        <img
+                                            src="{{ displayImage }}"
+                                            alt="{{ product.title }}"
+                                            class="rounded me-3"
+                                            style="width: 50px; height: 50px; object-fit: cover;"
+                                        >
+                                    {% else %}
+                                        <div class="rounded me-3 bg-light d-flex align-items-center justify-content-center border" style="width: 50px; height: 50px;">
+                                            <i class="bi bi-box-seam text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ product.title }}</strong>
+                                        {% if product.measurementUnit %}
+                                            <br><small class="text-muted">Unité: {{ product.measurementUnit }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-start align-middle">
+                                {% if product.category %}
+                                    <span class="badge bg-secondary">
+                                        {{ product.category.title }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end align-middle">
+                                {% set totalQty = product.totalQuantity %}
+                                {% if totalQty > 0 %}
+                                    <span class="badge bg-success">{{ totalQty }} Kg</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">0</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end align-middle">
+                                {% set latestPrice = product.latestPrice %}
+                                {% if latestPrice %}
+                                    <strong>{{ latestPrice|number_format(2, '.', ' ') }}</strong>
+                                    <small class="text-muted">FCFA</small>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end align-middle">
+                                {% set totalValue = product.totalInventoryValue %}
+                                {% if totalValue > 0 %}
+                                    <strong class="text-primary">{{ totalValue|number_format(2, '.', ' ') }}</strong>
+                                    <small class="text-muted">FCFA</small>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center align-middle">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-primary"
+                                        title="Voir les détails"
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary"
+                                        title="Modifier"
+                                    >
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-danger"
+                                        title="Supprimer"
+                                    >
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endblock %}
+            {% endembed %}
+        </div>
+    </div>
 {% endblock %}

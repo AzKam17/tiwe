@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ProductRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -35,6 +37,14 @@ class Product
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $images = [];
+
+    #[ORM\OneToMany(targetEntity: InventoryEntry::class, mappedBy: 'product')]
+    private Collection $inventoryEntries;
+
+    public function __construct()
+    {
+        $this->inventoryEntries = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -123,5 +133,109 @@ class Product
         $this->images = $images;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, InventoryEntry>
+     */
+    public function getInventoryEntries(): Collection
+    {
+        return $this->inventoryEntries;
+    }
+
+    public function addInventoryEntry(InventoryEntry $inventoryEntry): static
+    {
+        if (!$this->inventoryEntries->contains($inventoryEntry)) {
+            $this->inventoryEntries->add($inventoryEntry);
+            $inventoryEntry->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInventoryEntry(InventoryEntry $inventoryEntry): static
+    {
+        if ($this->inventoryEntries->removeElement($inventoryEntry)) {
+            // set the owning side to null (unless already changed)
+            if ($inventoryEntry->getProduct() === $this) {
+                $inventoryEntry->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get total quantity in inventory
+     */
+    public function getTotalQuantity(): int
+    {
+        $total = 0;
+        foreach ($this->inventoryEntries as $entry) {
+            $total += $entry->getQuantity();
+        }
+        return $total;
+    }
+
+    /**
+     * Get the latest price from inventory entries
+     */
+    public function getLatestPrice(): ?float
+    {
+        if ($this->inventoryEntries->isEmpty()) {
+            return null;
+        }
+
+        // Get the most recent entry
+        $latestEntry = null;
+        foreach ($this->inventoryEntries as $entry) {
+            if ($latestEntry === null || $entry->getCreatedAt() > $latestEntry->getCreatedAt()) {
+                $latestEntry = $entry;
+            }
+        }
+
+        return $latestEntry ? (float)$latestEntry->getPrice() : null;
+    }
+
+    /**
+     * Get total inventory value
+     */
+    public function getTotalInventoryValue(): float
+    {
+        $total = 0;
+        foreach ($this->inventoryEntries as $entry) {
+            $total += $entry->getTotalPrice();
+        }
+        return $total;
+    }
+
+    /**
+     * Get the display image for a specific user
+     * Returns custom image from user's latest entry, or product default image
+     */
+    public function getDisplayImageForUser(?User $user): ?string
+    {
+        if ($user === null) {
+            // No user provided, return default product image
+            return !empty($this->images) && isset($this->images[0]) ? $this->images[0] : null;
+        }
+
+        // Find the latest inventory entry with a custom image for this user
+        $latestEntryWithImage = null;
+        foreach ($this->inventoryEntries as $entry) {
+            if ($entry->getUser() === $user && $entry->getImage()) {
+                if ($latestEntryWithImage === null || $entry->getCreatedAt() > $latestEntryWithImage->getCreatedAt()) {
+                    $latestEntryWithImage = $entry;
+                }
+            }
+        }
+
+        // If user has uploaded a custom image, use it
+        if ($latestEntryWithImage && $latestEntryWithImage->getImage()) {
+            return $latestEntryWithImage->getImage();
+        }
+
+        // Otherwise, fall back to product default image
+        return !empty($this->images) && isset($this->images[0]) ? $this->images[0] : null;
     }
 }

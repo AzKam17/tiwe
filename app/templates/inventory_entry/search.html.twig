@@ -48,6 +48,7 @@
                             <a
                                 href="{{ path('app_inventory_entry_form', {productId: product.id}) }}"
                                 class="list-group-item list-group-item-action product-item py-3"
+                                data-turbo="false"
                             >
                                 <div class="d-flex align-items-center">
                                     {% if product.images is not empty and product.images[0] is defined %}
